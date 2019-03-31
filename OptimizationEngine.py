@@ -73,14 +73,12 @@ class OptimizationEngine:
         for t in range(self.time_count-1, -1, -1):
             order_book = self.order_book_entries(t)
             message_book = self.message_book_entries(t)
-            mid_spread = OptimizationEngine.mid_spread_from_order_book(order_book)
 
             curr_results = []
             for idx in range(0, self.inventory_count + 1):
                 executions = execution_engine.cost_other(message_book,
                                                          order_book,
                                                          idx * self.inventory_step,
-                                                         mid_spread,
                                                          self.actions)
                 curr_results.append(self.cost_update(executions[0], executions[1], results))
 
