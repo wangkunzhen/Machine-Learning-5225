@@ -53,5 +53,5 @@ for (msg_book_file, order_book_file) in zip(msg_book_files, order_book_files):
                                              actions)
         execution_engine = ExecutionEngine()
         strategy = optimize_engine.compute_optimal_solution(volume, execution_engine)
-        print("Done execution")
+        print("Done execution for " + str(start_time))
         print(strategy)

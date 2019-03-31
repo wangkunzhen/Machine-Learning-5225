@@ -19,7 +19,6 @@ class ExecutionEngine:
                 m_remain = max(0, m_remain - period_o[0, m * 4 + 3])
 
         if m_remain > 0:
-            print("remain order cannot be fully executed")
             cost = cost + m_remain * period_o[-1, -1]
             m_remain = 0
             # use lowest bid price to execute all shares
@@ -43,7 +42,6 @@ class ExecutionEngine:
                 # our price less than the bid price
                 counter = 0
                 temp = 0
-                print("order executed immediately")
 
                 while order_price <= period_o[0, 2 + counter * 4] and counter < 5 and remain[a] > 0:
                     # search through the buy book, for price with which our order can be executed
@@ -58,7 +56,6 @@ class ExecutionEngine:
                 #
                 remain[a] = max(remain[a], 0)
                 if remain[a] == 0:
-                    print("order fully executed")
                     continue
 
                 else:

@@ -60,13 +60,13 @@ class OptimizationEngine:
     def message_book_entries(self, time_index):
         lower = self.start_time + time_index * self.time_step
         upper = self.start_time + (time_index + 1) * self.time_step
-        return np.array([lower <= m[0] < upper for m in self.message_book])
+        return np.array([m for m in self.message_book if lower <= m[0] < upper])
 
     def compute_optimal_solution(self, total_inventory, execution_engine):
         # Initialize for time T
         last_order_book = self.order_book_entries(self.time_count)
         last_mid_spread = OptimizationEngine.mid_spread_from_order_book(last_order_book)
-        results = [Strategy(execution_engine.cost_T(last_order_book, last_mid_spread, idx * self.inventory_step), [])
+        results = [Strategy(execution_engine.cost_T(last_order_book, idx * self.inventory_step), [])
                    for idx in range(0, self.inventory_count + 1)]
 
         # Back Propagation
