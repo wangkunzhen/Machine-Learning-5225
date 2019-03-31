@@ -8,6 +8,9 @@ class Strategy:
         self.cost = cost
         self.actions = actions
 
+    def __str__(self):
+        return "Cost: " + str(self.cost) + " Actions: " + str(self.actions)
+
 
 class OptimizationEngine:
     """
@@ -26,20 +29,18 @@ class OptimizationEngine:
 
     @staticmethod
     def mid_spread_from_order_book(order_book):
-        return ((order_book[:, 0] + order_book[:, 2]) / 2)[0]
+        return (order_book[0][0] + order_book[0][2]) / 2
 
-    @staticmethod
-    def cost_update(actions, costs, inventories, next_results, unit_inventory):
-        next_period_results = [next_results[floor(i / unit_inventory)] for i in inventories]
-        tuples = zip(actions, costs, next_period_results)
+    def cost_update(self, costs, inventories, next_results):
+        next_period_results = [next_results[floor(i / self.inventory_step)] for i in inventories]
+        tuples = zip(self.actions, costs, next_period_results)
         total_results = [Strategy(c + r.cost, [a] + r.actions) for (a, c, r) in tuples]
         return reduce(lambda x, y: x if x.cost == min(x.cost, y.cost) else y, total_results)
 
     def order_book_entries(self, time_index):
         lower = time_index * self.time_step
         upper = (time_index + 1) * self.time_step
-        filtered_tuples = filter(lambda o, m: lower <= m < upper, zip(self.message_book, self.order_book))
-        return [o for (o, m) in filtered_tuples]
+        return [t[1] for t in filter(lambda t: lower <= t[0][0] < upper, zip(self.message_book, self.order_book))]
 
     def message_book_entries(self, time_index):
         lower = time_index * self.time_step
@@ -50,7 +51,7 @@ class OptimizationEngine:
         # Initialize for time T
         last_order_book = self.order_book_entries(self.time_count)
         last_mid_spread = OptimizationEngine.mid_spread_from_order_book(last_order_book)
-        results = [Strategy(execution_engine.cost_T(last_order_book, last_mid_spread, idx * self.inventory_step), [])
+        results = [Strategy(execution_engine.cost_T([last_order_book], last_mid_spread, idx * self.inventory_step), [])
                    for idx in range(0, self.inventory_count + 1)]
 
         # Back Propagation
@@ -59,14 +60,14 @@ class OptimizationEngine:
             message_book = self.message_book_entries(t)
             mid_spread = OptimizationEngine.mid_spread_from_order_book(order_book)
 
-            curr_results = np.array(self.inventory_count + 1)
+            curr_results = []
             for idx in range(0, self.inventory_count + 1):
-                costs, remaining_inventories = execution_engine.cost_other(message_book,
-                                                                           order_book,
-                                                                           idx * self.inventory_step,
-                                                                           mid_spread,
-                                                                           self.actions)
-                curr_results[idx] = self.cost_update(costs, remaining_inventories, results)
+                executions = execution_engine.cost_other(message_book,
+                                                         order_book,
+                                                         idx * self.inventory_step,
+                                                         mid_spread,
+                                                         self.actions)
+                curr_results.append(self.cost_update(executions[0], executions[1], results))
 
             results = curr_results
 
