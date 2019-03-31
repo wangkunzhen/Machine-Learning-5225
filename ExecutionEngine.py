@@ -43,7 +43,7 @@ class ExecutionEngine:
                 counter = 0
                 temp = 0
 
-                while order_price <= period_o[0, 2 + counter * 4] and counter < 5 and remain[a] > 0:
+                while counter < 5 and order_price <= period_o[0, 2 + counter * 4] and remain[a] > 0:
                     # search through the buy book, for price with which our order can be executed
                     if remain[a] > period_o[0, 3 + counter * 4]:
                         remain[a] = remain[a] - period_o[0, 3 + counter * 4]

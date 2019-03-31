@@ -23,8 +23,8 @@ time_step = int(sys.argv[5])
 
 actions = range(2000, -300, -50)
 
-msg_book_files = [f for f in listdir(data_folder) if isfile(join(data_folder, f)) & f.endswith("message_5.csv")]
-order_book_files = [f for f in listdir(data_folder) if isfile(join(data_folder, f)) & f.endswith("orderbook_5.csv")]
+msg_book_files = [f for f in listdir(data_folder) if isfile(join(data_folder, f)) and f.endswith("message_5.csv")]
+order_book_files = [f for f in listdir(data_folder) if isfile(join(data_folder, f)) and f.endswith("orderbook_5.csv")]
 
 assert len(msg_book_files) == len(order_book_files)
 
