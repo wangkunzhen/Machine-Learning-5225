@@ -40,8 +40,7 @@ class OptimizationEngine:
     def cost_update(self, costs, inventories, next_results):
         next_period_results = [next_results[floor(i / self.inventory_step)] for i in inventories]
         tuples = zip(self.actions, costs, next_period_results)
-        total_results = [Strategy(c + r.cost, [a] + r.actions, [i * self.inventory_step] + r.inventory)
-                         for (i, (a, c, r)) in enumerate(tuples)]
+        total_results = [Strategy(c + r.cost, [a] + r.actions, r.inventory) for (i, (a, c, r)) in enumerate(tuples)]
         return reduce(lambda x, y: x if x.cost == min(x.cost, y.cost) else y, total_results)
 
     def order_book_entries(self, time_index):
@@ -80,7 +79,10 @@ class OptimizationEngine:
                                                    order_book,
                                                    idx * self.inventory_step,
                                                    self.actions)
-                curr_results.append(self.cost_update(executions[0], executions[1], results))
+                updated_result = self.cost_update(executions[0], executions[1], results)
+                curr_results.append(Strategy(updated_result.cost,
+                                             updated_result.actions,
+                                             [idx * self.inventory_step] + updated_result.inventory))
 
             results = curr_results
 
