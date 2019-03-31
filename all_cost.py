@@ -9,7 +9,6 @@ import numpy as np
 
 
 class ExecutionEngine:
-    @staticmethod
     def cost_T(period_o, mid_spread, remain):
 
         cost = 0
@@ -32,7 +31,6 @@ class ExecutionEngine:
 
         return cost
 
-    @staticmethod
     def cost_other(period_m, period_o, inventory, mid_spread, action):
 
         non_exe = 0
