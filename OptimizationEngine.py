@@ -72,4 +72,4 @@ class OptimizationEngine:
             results = curr_results
 
         # Extract solution
-        return results[total_inventory]
+        return results[floor(total_inventory / self.inventory_step)]
