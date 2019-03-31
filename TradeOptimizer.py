@@ -7,6 +7,7 @@ Created on Sun Mar 31
 
 import time
 import sys
+import csv
 import pandas as pd
 import numpy as np
 from os import listdir
@@ -38,6 +39,7 @@ for (msg_book_file, order_book_file) in zip(msg_book_files, order_book_files):
 
     trade_start_time = int(9.5 * 60 * 60)
     trade_end_time = int(16 * 60 * 60)
+    daily_result = []
     for start_time in range(trade_start_time, trade_end_time, time_horizon):
         end_time = start_time + time_horizon
         msg_book_episode = np.asarray([msg for msg in msg_book if start_time <= msg[0] < end_time])
@@ -58,3 +60,10 @@ for (msg_book_file, order_book_file) in zip(msg_book_files, order_book_files):
         elapse_time = time.time() - start_time
         print("Done execution for " + str(start_time) + " using " + str(elapse_time))
         print(strategy)
+        daily_result_entry = [item for tup in zip(strategy.actions, strategy.inventory) for item in [tup[0], tup[1]]] + [strategy.cost]
+        daily_result.append(daily_result_entry)
+
+    output_filename = "output.csv"
+    with open(join(data_folder, output_filename), "w") as f:
+        writer = csv.writer(f)
+        writer.writerows(daily_result)
