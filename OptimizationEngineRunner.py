@@ -12,6 +12,6 @@ class ExecutionEngineStub:
 exe_engine = ExecutionEngineStub()
 message_book = [[1], [2], [3], [4], [5], [6], [7], [8], [9], [10]]
 order_book = [[0, 0, 2, 0], [0, 0, 2, 0], [0, 0, 2, 0], [0, 0, 2, 0], [0, 0, 2, 0], [0, 0, 2, 0], [0, 0, 2, 0], [0, 0, 2, 0], [0, 0, 2, 0], [0, 0, 2, 0]]
-opt_engine = OptimizationEngine(order_book, message_book, 2, 5, 1, 10, [1,2,3,4,5,6,7,8,9,10])
+opt_engine = OptimizationEngine(order_book, message_book, 2, 5, 1, 10, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
 strategy = opt_engine.compute_optimal_solution(10, exe_engine)
 print(strategy)
