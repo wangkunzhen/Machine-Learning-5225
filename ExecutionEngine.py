@@ -20,8 +20,6 @@ class ExecutionEngine:
 
         if m_remain > 0:
             cost = cost + m_remain * period_o[-1, -1]
-            m_remain = 0
-            # use lowest bid price to execute all shares
 
         return cost
 
@@ -34,7 +32,6 @@ class ExecutionEngine:
         for a in range(np.array(action).size):
 
             iaction = np.array(action)[a]
-            # remain = i * V / I                 #initial order volume at this episode
             order_price = period_o[0, 0] - iaction
             # our sell price should be around ask price
 
@@ -53,15 +50,13 @@ class ExecutionEngine:
                     else:
                         cost[a] = cost[a] + order_price * remain[a]
                         remain[a] = 0
-                #
+
                 remain[a] = max(remain[a], 0)
                 if remain[a] == 0:
                     continue
 
                 else:
-                    count3 = 0
                     lps = temp
-                    lowest_price = order_price
                     # lps means the size of order has not been executed,
                     # look through whole sell book,to search
 
@@ -123,7 +118,6 @@ class ExecutionEngine:
 
                             else:
                                 lps = lps - period_m[idx, 3]
-
 
             else:
                 count3 = 0
@@ -190,4 +184,3 @@ class ExecutionEngine:
                             lps = lps - period_m[idx, 3]
 
         return cost, remain
-

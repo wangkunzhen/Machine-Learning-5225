@@ -5,6 +5,7 @@ Created on Sun Mar 31
 @author: Wang Kunzhen
 """
 
+import time
 import sys
 import pandas as pd
 import numpy as np
@@ -51,7 +52,9 @@ for (msg_book_file, order_book_file) in zip(msg_book_files, order_book_files):
                                              volume_step,
                                              int(volume / volume_step),
                                              actions)
+        start_time = time.time()
         execution_engine = ExecutionEngine()
         strategy = optimize_engine.compute_optimal_solution(volume, execution_engine)
-        print("Done execution for " + str(start_time))
+        elapse_time = time.time() - start_time
+        print("Done execution for " + str(start_time) + " using " + str(elapse_time))
         print(strategy)
