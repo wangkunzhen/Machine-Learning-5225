@@ -12,7 +12,6 @@ sys.path.append("D:/python/python_project/Neural Network")
 import pandas as pd
 import os,glob
 import numpy as np
-from optimal_function import *
 from all_cost import *
 
 order_files = []
@@ -48,11 +47,11 @@ for inum in range(num_file):
     day = mess_files[inum][13:15]
     
     demoDate = np.array([int(year),int(mon),int(day)])
-    with open(mess_files[inum],mode = 'r') as csv_file:
+    with open(mess_files[inum], mode = 'r') as csv_file:
         MB = pd.read_csv(csv_file, header=None)
     with open(order_files[inum],mode = 'r') as csv_file:
         OB = pd.read_csv(csv_file, header=None) 
-    
+
     assert len(MB)==len(OB)    #if the size not match
     shape = MB.shape
     
