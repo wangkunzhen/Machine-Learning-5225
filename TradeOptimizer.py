@@ -39,10 +39,10 @@ for (msg_book_file, order_book_file) in zip(msg_book_files, order_book_files):
     trade_end_time = int(16 * 60 * 60)
     for start_time in range(trade_start_time, trade_end_time, time_horizon):
         end_time = start_time + time_horizon
-        msg_book_episode = [msg for msg in msg_book if start_time <= msg[0] < end_time]
-        order_book_episode = [order_book[i][:]
-                              for i in range(0, msg_book.shape[0])
-                              if start_time <= msg_book[i][0] < end_time]
+        msg_book_episode = np.asarray([msg for msg in msg_book if start_time <= msg[0] < end_time])
+        order_book_episode = np.asarray([order_book[i][:]
+                                        for i in range(0, msg_book.shape[0])
+                                        if start_time <= msg_book[i][0] < end_time])
         optimize_engine = OptimizationEngine(order_book_episode,
                                              msg_book_episode,
                                              start_time,

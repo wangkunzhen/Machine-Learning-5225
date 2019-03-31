@@ -5,6 +5,7 @@ Created on Sun Mar 31
 
 from math import floor
 from functools import reduce
+import numpy as np
 
 
 class Strategy:
@@ -34,7 +35,7 @@ class OptimizationEngine:
 
     @staticmethod
     def mid_spread_from_order_book(order_book):
-        return (order_book[0][0] + order_book[0][2]) / 2
+        return (order_book[0, 0] + order_book[0, 2]) / 2
 
     def cost_update(self, costs, inventories, next_results):
         next_period_results = [next_results[floor(i / self.inventory_step)] for i in inventories]
@@ -46,20 +47,20 @@ class OptimizationEngine:
         if time_index == self.time_count:
             lower = self.start_time + (time_index - 1) * self.time_step
             upper = self.start_time + time_index * self.time_step
-            return [[self.order_book[i]
-                     for i in range(0, len(self.order_book))
-                     if lower <= self.message_book[i][0] < upper][-1]]
+            return np.array([[self.order_book[i]
+                             for i in range(0, len(self.order_book))
+                             if lower <= self.message_book[i][0] < upper][-1]])
         else:
             lower = self.start_time + time_index * self.time_step
             upper = self.start_time + (time_index + 1) * self.time_step
-            return [self.order_book[i]
-                    for i in range(0, len(self.order_book))
-                    if lower <= self.message_book[i][0] < upper]
+            return np.array([self.order_book[i]
+                            for i in range(0, len(self.order_book))
+                            if lower <= self.message_book[i][0] < upper])
 
     def message_book_entries(self, time_index):
         lower = self.start_time + time_index * self.time_step
         upper = self.start_time + (time_index + 1) * self.time_step
-        return [lower <= m[0] < upper for m in self.message_book]
+        return np.array([lower <= m[0] < upper for m in self.message_book])
 
     def compute_optimal_solution(self, total_inventory, execution_engine):
         # Initialize for time T
