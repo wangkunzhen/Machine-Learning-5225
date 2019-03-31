@@ -1,4 +1,8 @@
-import numpy as np
+"""
+Created on Sun Mar 31
+@author: Wang Kunzhen
+"""
+
 from math import floor
 from functools import reduce
 
@@ -18,13 +22,14 @@ class OptimizationEngine:
     Output is a Strategy object with an array of actions and its associated cost.
     """
 
-    def __init__(self, order_book, message_book, time_step, time_count, inventory_step, inventory_count, actions):
+    def __init__(self, order_book, msg_book, start_time, time_step, time_count, inv_step, inv_count, actions):
         self.order_book = order_book
-        self.message_book = message_book
+        self.message_book = msg_book
+        self.start_time = start_time
         self.time_step = time_step
         self.time_count = time_count
-        self.inventory_step = inventory_step
-        self.inventory_count = inventory_count
+        self.inventory_step = inv_step
+        self.inventory_count = inv_count
         self.actions = actions
 
     @staticmethod
@@ -38,20 +43,29 @@ class OptimizationEngine:
         return reduce(lambda x, y: x if x.cost == min(x.cost, y.cost) else y, total_results)
 
     def order_book_entries(self, time_index):
-        lower = time_index * self.time_step
-        upper = (time_index + 1) * self.time_step
-        return [t[1] for t in filter(lambda t: lower <= t[0][0] < upper, zip(self.message_book, self.order_book))]
+        if time_index == self.time_count:
+            lower = self.start_time + (time_index - 1) * self.time_step
+            upper = self.start_time + time_index * self.time_step
+            return [[self.order_book[i]
+                     for i in range(0, len(self.order_book))
+                     if lower <= self.message_book[i][0] < upper][-1]]
+        else:
+            lower = self.start_time + time_index * self.time_step
+            upper = self.start_time + (time_index + 1) * self.time_step
+            return [self.order_book[i]
+                    for i in range(0, len(self.order_book))
+                    if lower <= self.message_book[i][0] < upper]
 
     def message_book_entries(self, time_index):
-        lower = time_index * self.time_step
-        upper = (time_index + 1) * self.time_step
+        lower = self.start_time + time_index * self.time_step
+        upper = self.start_time + (time_index + 1) * self.time_step
         return [lower <= m[0] < upper for m in self.message_book]
 
     def compute_optimal_solution(self, total_inventory, execution_engine):
         # Initialize for time T
         last_order_book = self.order_book_entries(self.time_count)
         last_mid_spread = OptimizationEngine.mid_spread_from_order_book(last_order_book)
-        results = [Strategy(execution_engine.cost_T([last_order_book], last_mid_spread, idx * self.inventory_step), [])
+        results = [Strategy(execution_engine.cost_T(last_order_book, last_mid_spread, idx * self.inventory_step), [])
                    for idx in range(0, self.inventory_count + 1)]
 
         # Back Propagation

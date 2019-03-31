@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 
+"""
+Created on Sun Mar 31
+@author: Wang Kunzhen
+"""
+
 import sys
 import pandas as pd
 import numpy as np
@@ -11,10 +16,10 @@ from all_cost import ExecutionEngine
 data_folder = sys.argv[1]
 output_folder = data_folder + "/output/"
 
-volume = int(sys.argv[2]) # Total Inventory
-volume_step = int(sys.argv[3]) # Unit Inventory
-time_horizon = int(sys.argv[4]) # Total Time
-time_step = int(sys.argv[5]) # Unit Time
+volume = int(sys.argv[2])
+volume_step = int(sys.argv[3])
+time_horizon = int(sys.argv[4])
+time_step = int(sys.argv[5])
 
 actions = range(2000, -300, -50)
 
@@ -40,6 +45,7 @@ for (msg_book_file, order_book_file) in zip(msg_book_files, order_book_files):
                               if start_time <= msg_book[i][0] < end_time]
         optimize_engine = OptimizationEngine(order_book_episode,
                                              msg_book_episode,
+                                             start_time,
                                              time_step,
                                              int(time_horizon / time_step),
                                              volume_step,

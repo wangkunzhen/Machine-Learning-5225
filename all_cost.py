@@ -9,7 +9,7 @@ import numpy as np
 
 
 class ExecutionEngine:
-    def cost_T(period_o, mid_spread, remain):
+    def cost_T(self, period_o, mid_spread, remain):
 
         cost = 0
         m_remain = remain
@@ -31,7 +31,7 @@ class ExecutionEngine:
 
         return cost
 
-    def cost_other(period_m, period_o, inventory, mid_spread, action):
+    def cost_other(self, period_m, period_o, inventory, mid_spread, action):
 
         non_exe = 0
         cost = np.zeros(np.array(action).size)
