@@ -27,8 +27,11 @@ volume = int(sys.argv[2])
 volume_step = int(sys.argv[3])
 time_horizon = int(sys.argv[4])
 time_step = int(sys.argv[5])
+max_action = int(sys.argv[6])
+min_action = int(sys.argv[7])
+action_step = int(sys.argv[8])
 
-actions = range(1000, -300, -100)
+actions = range(max_action, min_action, action_step)
 
 msg_book_files = [f for f in listdir(data_folder) if isfile(join(data_folder, f)) and f.endswith("message_5.csv")]
 order_book_files = [f for f in listdir(data_folder) if isfile(join(data_folder, f)) and f.endswith("orderbook_5.csv")]
