@@ -15,7 +15,7 @@ class DataLoader:
         :return: 2D numpy array with each row representing a decision point's market data
         """
         market_files = np.asarray(
-            [f for f in listdir(self.path) if isfile(join(self.path, f)) and f.startswith("market")])
+            [join(self.path, f) for f in listdir(self.path) if isfile(join(self.path, f)) and f.startswith("market")])
         market_rows = np.asarray([np.asarray(pd.read_csv(f)) for f in market_files])
         shape = market_rows.shape
         print(shape)
@@ -23,12 +23,12 @@ class DataLoader:
         return self.reshape_market_data(flatten_rows)
 
     def reshape_market_data(self, market_rows):
-        market_variable_len = market_rows.shape[1] / self.time_step_per_episode
-        return np.asarray(market_rows).reshape(self.time_step_per_episode*len(market_rows), market_variable_len)
+        market_variable_len = int(market_rows.shape[1] / self.time_step_per_episode)
+        return np.asarray(market_rows).reshape(self.time_step_per_episode*market_rows.shape[0], market_variable_len)
 
     def load_private_data(self):
         private_files = np.asarray(
-            [f for f in listdir(self.path) if isfile(join(self.path, f)) and f.startswith("private")])
+            [join(self.path, f) for f in listdir(self.path) if isfile(join(self.path, f)) and f.startswith("private")])
         rows = np.asarray([np.asarray(pd.read_csv(f)) for f in private_files])
         shape = rows.shape
         print(shape)
@@ -36,15 +36,15 @@ class DataLoader:
         return self.reshape_private_data(flatten_rows)
 
     def reshape_private_data(self, private_rows):
-        private_variable_len = (private_rows.shape[1] - 1) / self.time_step_per_episode
-        return np.asarray(private_rows).reshape(self.time_step_per_episode * len(private_rows), private_variable_len)
+        private_variable_len = int((private_rows.shape[1] - 1) / self.time_step_per_episode)
+        return np.asarray(private_rows[:, :-1]).reshape(self.time_step_per_episode * private_rows.shape[0], private_variable_len)
 
     def combine_market_and_private_data(self, market, private):
-        repeat_count = market.shape[0] / self.time_step_per_episode
-        repeated_remaining_count = np.repeat(range(self.time_step_per_episode, 0, -1), repeat_count)
+        repeat_count = int(market.shape[0] / self.time_step_per_episode)
+        repeated_remaining_count = np.repeat(np.asarray(range(self.time_step_per_episode, 0, -1)), repeat_count)
         remaining_times = repeated_remaining_count.reshape(repeat_count, self.time_step_per_episode, order='F')\
                                                   .reshape(market.shape[0], 1)
-        input_data = np.concatenate(market, private[:, 1:], remaining_times)
+        input_data = np.hstack((market, private[:, 1:], remaining_times))
         output_data = private[:, 0]
         return input_data, output_data
 
