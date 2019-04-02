@@ -69,7 +69,8 @@ for (msg_book_file, order_book_file) in zip(msg_book_files, order_book_files):
         daily_result.append(daily_result_entry)
 
     date_string = msg_book_file.split("_")[1]
-    output_filename = "optimal_solution_" + date_string + ".csv"
+    formated_date_string = ''.join(date_string.split("-"))
+    output_filename = "private_" + formated_date_string + ".csv"
     with open(join(output_folder, output_filename), "w") as f:
         writer = csv.writer(f)
         writer.writerows(daily_result)
