@@ -41,7 +41,7 @@ class OptimizationEngine:
         next_period_results = [next_results[floor(i / self.inventory_step)] for i in inventories]
         tuples = zip(self.actions, costs, next_period_results)
         total_results = [Strategy(c + r.cost, [a] + r.actions, r.inventory) for (i, (a, c, r)) in enumerate(tuples)]
-        return reduce(lambda x, y: x if x.cost == min(x.cost, y.cost) else y, total_results)
+        return reduce(lambda x, y: x if x.cost == max(x.cost, y.cost) else y, total_results)
 
     def order_book_entries(self, time_index):
         if time_index == self.time_count:
