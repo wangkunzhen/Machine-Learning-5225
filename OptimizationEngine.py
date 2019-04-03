@@ -47,9 +47,13 @@ class OptimizationEngine:
         if time_index == self.time_count:
             lower = self.start_time + (time_index - 1) * self.time_step
             upper = self.start_time + time_index * self.time_step
-            return np.array([[self.order_book[i]
-                             for i in range(0, len(self.order_book))
-                             if lower <= self.message_book[i][0] < upper][-1]])
+            order_book = [self.order_book[i]
+                          for i in range(0, self.message_book.shape[0])
+                          if lower <= self.message_book[i][0] < upper]
+            if len(order_book) == 0:
+                return np.asarray([[]])
+            else:
+                return np.asarray([order_book[-1]])
         else:
             lower = self.start_time + time_index * self.time_step
             upper = self.start_time + (time_index + 1) * self.time_step
@@ -63,15 +67,26 @@ class OptimizationEngine:
         return np.array([m for m in self.message_book if lower <= m[0] < upper])
 
     def compute_optimal_solution(self, total_inventory, exe_engine):
+        time = self.time_count
+        while time >= 0 and (self.order_book_entries(time).shape[0] == 0 or self.order_book_entries(time).shape[1] == 0):
+            time -= 1
+
+        if time < 0:
+            return Strategy(0, [], [])
+
         # Initialize for time T
-        last_order_book = self.order_book_entries(self.time_count)
+        last_order_book = self.order_book_entries(time)
         results = [Strategy(exe_engine.cost_T(last_order_book, idx*self.inventory_step), [], [])
                    for idx in range(0, self.inventory_count + 1)]
 
         # Back Propagation
-        for t in range(self.time_count-1, -1, -1):
+        for t in range(time-1, -1, -1):
             order_book = self.order_book_entries(t)
             message_book = self.message_book_entries(t)
+
+            if message_book.shape[0] == 0:
+                print("Skipping " + str(t))
+                continue
 
             curr_results = []
             for idx in range(0, self.inventory_count + 1):
@@ -87,7 +102,14 @@ class OptimizationEngine:
             results = curr_results
 
         # Extract solution
-        first_order_book = self.order_book_entries(0)
+        result = results[floor(total_inventory / self.inventory_step)]
+        if len(result.actions) != self.time_count or len(result.inventory) != self.time_count:
+            return Strategy(0, [], [])
+
+        idx = 0
+        while self.order_book_entries(idx).shape[0] == 0 or self.order_book_entries(idx).shape[1] == 0:
+            idx += 1
+        first_order_book = self.order_book_entries(idx)
         mid_spread = self.mid_spread_from_order_book(first_order_book)
         result = results[floor(total_inventory / self.inventory_step)]
         return Strategy(result.cost - mid_spread * total_inventory, result.actions, result.inventory)
