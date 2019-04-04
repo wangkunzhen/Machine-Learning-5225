@@ -38,10 +38,22 @@ class OptimizationEngine:
         return (order_book[0, 0] + order_book[0, 2]) / 2
 
     def cost_update(self, costs, inventories, next_results):
-        next_period_results = [next_results[floor(i / self.inventory_step)] for i in inventories]
-        tuples = zip(self.actions, costs, next_period_results)
-        total_results = [Strategy(c + r.cost, [a] + r.actions, r.inventory) for (i, (a, c, r)) in enumerate(tuples)]
-        return reduce(lambda x, y: x if x.cost == max(x.cost, y.cost) else y, total_results)
+        optimal_cost = 0
+        optimal_actions = []
+        optimal_inventories = []
+        for idx in range(0, len(self.actions)):
+            action = self.actions[idx]
+            cost_im = costs[idx]
+            inventory = inventories[idx]
+            inventory_idx = int(inventory / self.inventory_step)
+            next_period_result = next_results[inventory_idx]
+            total_cost = cost_im + next_period_result.cost
+            if total_cost > optimal_cost or idx == 0:
+                optimal_cost = total_cost
+                optimal_actions = [action] + next_period_result.actions
+                optimal_inventories = [self.inventory_step * inventory_idx] + next_period_result.inventory
+
+        return Strategy(optimal_cost, optimal_actions, optimal_inventories)
 
     def order_book_entries(self, time_index):
         if time_index == self.time_count:
@@ -97,7 +109,7 @@ class OptimizationEngine:
                 updated_result = self.cost_update(executions[0], executions[1], results)
                 curr_results.append(Strategy(updated_result.cost,
                                              updated_result.actions,
-                                             [idx * self.inventory_step] + updated_result.inventory))
+                                             updated_result.inventory))
 
             results = curr_results
 
