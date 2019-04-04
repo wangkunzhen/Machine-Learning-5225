@@ -51,7 +51,7 @@ class OptimizationEngine:
             if total_cost > optimal_cost or idx == 0:
                 optimal_cost = total_cost
                 optimal_actions = [action] + next_period_result.actions
-                optimal_inventories = [self.inventory_step * inventory_idx] + next_period_result.inventory
+                optimal_inventories = [inventory] + next_period_result.inventory
 
         return Strategy(optimal_cost, optimal_actions, optimal_inventories)
 

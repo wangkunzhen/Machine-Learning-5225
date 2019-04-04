@@ -48,8 +48,8 @@ for (msg_book_file, order_book_file) in zip(msg_book_files, order_book_files):
     assert len(msg_book) == len(order_book)
     print("Loaded " + msg_book_file + " + " + order_book_file)
 
-    trade_start_time = 35400
-    trade_end_time = 35520
+    trade_start_time = int(9.5 * 60 * 60)
+    trade_end_time = int(16 * 60 * 60)
     daily_result = []
     for start_time in range(trade_start_time, trade_end_time, time_horizon):
         end_time = start_time + time_horizon
