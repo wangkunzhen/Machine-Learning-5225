@@ -16,6 +16,7 @@ class DataLoader:
         """
         market_files = np.asarray(
             [join(self.path, f) for f in listdir(self.path) if isfile(join(self.path, f)) and f.startswith("market")])
+        market_files.sort()
         market_rows = np.asarray([np.asarray(pd.read_csv(f)) for f in market_files])
         shape = market_rows.shape
         flatten_rows = market_rows.reshape(shape[0]*shape[1], shape[2])
@@ -28,6 +29,7 @@ class DataLoader:
     def load_private_data(self):
         private_files = np.asarray(
             [join(self.path, f) for f in listdir(self.path) if isfile(join(self.path, f)) and f.startswith("private")])
+        private_files.sort()
         rows = np.asarray([np.asarray(pd.read_csv(f)) for f in private_files])
         shape = rows.shape
         flatten_rows = rows.reshape(shape[0] * shape[1], shape[2])

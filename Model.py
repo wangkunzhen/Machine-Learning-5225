@@ -21,7 +21,7 @@ normalized_output = (output_data - min_action) / action_step
 
 model = keras.Sequential([
     keras.layers.Flatten(input_shape=(6,)),
-    keras.layers.Dense(128, activation=tf.nn.sigmoid),
+    keras.layers.Dense(128, activation=tf.nn.relu),
     keras.layers.Dense((max_action - min_action) / action_step + 1, activation=tf.nn.softmax)
 ])
 
@@ -29,4 +29,4 @@ model.compile(optimizer='adam',
               loss='sparse_categorical_crossentropy',
               metrics=['accuracy'])
 
-model.fit(input_data, normalized_output, epochs=2000)
+model.fit(input_data, normalized_output, epochs=100)
