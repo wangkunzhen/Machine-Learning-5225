@@ -33,6 +33,7 @@ class ExecutionEngine:
             iaction = np.array(action)[a]
             order_price = period_o[0, 0] - iaction
             # our sell price should be around ask price
+            # print('iaction= ', iaction, ' order_price=', order_price, ' remain=', remain[a])
 
             if order_price <= period_o[0, 2]:
                 # our price less than the bid price
@@ -55,9 +56,10 @@ class ExecutionEngine:
                     continue
 
                 else:
-                    lps = temp
-                    non_exe = 0
-                    # lps means the size of order has not been executed,
+                    lps = 0
+                    exe = temp
+                    # exe means the size of order has been executed,buy book execution only resume after exe=0
+                    # lps means the size of sell order with lower price
                     # look through whole sell book,to search
 
                     for idx, val in enumerate(range(0, msize[0] - 1)):
@@ -66,33 +68,37 @@ class ExecutionEngine:
                             break
                         if lps < 0:
                             lps = 0
-                        if non_exe < 0:
-                            non_exe = 0
 
                         if period_m[idx, 1] == 1 and period_m[idx, 5] == -1:
                             # submit a sell limit order, which price lower than us
                             if period_m[idx, 4] < order_price:
                                 lps += period_m[idx, 3]
-                                non_exe += period_m[idx, 3]
+                                # exe += period_m[idx, 3]
 
-                        elif period_m[idx, 1] == 4 and period_m[idx, 5] == 1 and period_m[idx, 4] > order_price:
+                        elif period_m[idx, 1] == 4 and period_m[idx, 5] == 1 and period_m[idx, 4] > order_price and exe<=0:
                             # execution of a buy order with higher price
-                            if period_m[idx, 3] > non_exe:
-                                tmp = period_m[idx, 3] - non_exe  # size of our order being executed
+                            if period_m[idx, 3] > lps:
+                                tmp = period_m[idx, 3] - lps  # size of our order being executed
                                 cost[a] += min(tmp,remain[a]) * period_m[idx, 4]
                                 remain[a] = max(remain[a] - tmp, 0)
                                 lps = max(0, lps - period_m[idx, 3])
-                                non_exe = 0
 
                             else:
                                 lps = lps - period_m[idx, 3]
-                                non_exe = non_exe - period_m[idx, 3]
+
+                        elif period_m[idx, 1] == 4 and period_m[idx, 5] == 1 and period_m[idx, 4] > order_price and exe>0:
+                            exe=exe-period_m[idx, 3]
+
+                        elif period_m[idx, 1] == 1 and period_m[idx, 5] == 1 and period_m[
+                            idx, 4] >= order_price and lps == 0:
+                            cost[a] += min(remain[a], period_m[idx, 3]) * period_m[idx, 4]
+                            remain[a] = max(remain[a] - period_m[idx, 3], 0)
+                            lps = lps - min(remain[a], period_m[idx, 3])
 
                         elif (period_m[idx, 1] == 2 or period_m[idx, 1] == 3) and period_m[idx, 5] == -1:
                             # cancel or delete an order
                             if period_m[idx, 4] < order_price:
                                 lps = lps - period_m[idx, 3]
-                                non_exe = non_exe - period_m[idx, 3]
 
                             elif period_m[idx, 4] == order_price:
                                 # update lps if limit sell order with price lower than our sell price is cancelled
@@ -103,13 +109,11 @@ class ExecutionEngine:
                                 label = period_m[idx, 2]
                                 if len(np.where(period_m[:, 2] == label)) == 1:  # the order is submitted before us
                                     lps = lps - period_m[idx, 3]
-                                    non_exe = non_exe - period_m[idx, 3]
+
 
                         elif period_m[idx, 1] == 4 and period_m[idx, 5] == -1 and period_m[idx, 4] < order_price:
                             # a sell order with lower price is executed
-
                             lps = max(lps - period_m[idx, 3], 0)
-                            non_exe = max(non_exe - period_m[idx, 3], 0)
 
                         elif period_m[idx, 1] == 4 and period_m[idx, 5] == -1 and period_m[idx, 4] >= order_price:
                             if period_m[idx, 3] > lps:
@@ -120,18 +124,17 @@ class ExecutionEngine:
 
                             else:
                                 lps = lps - period_m[idx, 3]
-
+                            # print('line= ', idx, ' lps= ', lps, ' cost= ', cost[a], ' remain= ', remain[a],
+                            #     ' exe = ', exe, ' ID= ', period_m[idx, 2])
 
             else:
                 count3 = 0
-                lps = 0  # lps means the size of order has not been executed
+                lps = 0  # lps means the size of sell order with lower price
                 lowest_price = order_price
                 while count3 < 5 and period_o[0, count3 * 4] <= order_price:
                     lps = lps + period_o[0, count3 * 4 + 1]
                     lowest_price = min(lowest_price, period_o[0, count3 * 4])
                     count3 = count3 + 1
-
-                lps = lps
 
                 for idx, val in enumerate(range(0, msize[0] - 1)):
 
@@ -156,6 +159,12 @@ class ExecutionEngine:
 
                         else:
                             lps = lps - period_m[idx, 3]
+
+                    elif period_m[idx, 1] == 1 and period_m[idx, 5] == 1 and period_m[idx, 4] >= order_price and lps == 0:
+                        # order executed if new buy order has higher price than our sell price and lps=0
+                        cost[a] += min(remain[a], period_m[idx, 3]) * period_m[idx, 4]
+                        remain[a] = max(remain[a]-period_m[idx,3],0)
+                        # print("idx= ", idx , ' remain= ', remain)
 
                     elif (period_m[idx, 1] == 2 or period_m[idx, 1] == 3) and period_m[idx, 5] == -1:
                         # cancel or delete a sell order
@@ -187,6 +196,10 @@ class ExecutionEngine:
 
                         else:
                             lps = lps - period_m[idx, 3]
+
+                    # print('line= ', idx, ' lps= ', lps, ' cost= ', cost[a], ' remain= ', remain[a])
+
+            # print('final cost= ', cost[a], 'final remain= ', remain[a])
 
         return cost, remain
 
