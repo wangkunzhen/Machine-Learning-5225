@@ -20,7 +20,8 @@ class DataLoader:
         market_rows = np.asarray([np.asarray(pd.read_csv(f)) for f in market_files])
         shape = market_rows.shape
         flatten_rows = market_rows.reshape(shape[0]*shape[1], shape[2])
-        return self.reshape_market_data(flatten_rows)
+        return flatten_rows
+        # return self.reshape_market_data(flatten_rows)
 
     def reshape_market_data(self, market_rows):
         market_variable_len = int(market_rows.shape[1] / self.time_step_per_episode)

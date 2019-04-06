@@ -5,7 +5,8 @@ from tensorflow import keras
 from DataLoader import DataLoader
 import sys
 
-folder = sys.argv[1]
+train_folder = sys.argv[1]
+test_folder = sys.argv[9]
 volume = int(sys.argv[2])
 volume_step = int(sys.argv[3])
 time_horizon = int(sys.argv[4])
@@ -14,11 +15,13 @@ max_action = int(sys.argv[6])
 min_action = int(sys.argv[7])
 action_step = int(sys.argv[8])
 
-window_size = 9
-input_data, output_data = DataLoader(folder, 4).load_data(window_size)
+window_size = 5
+input_data, output_data = DataLoader(train_folder, 4).load_data(window_size)
+test_input, test_output = DataLoader(test_folder, 4).load_data(window_size)
 
 # normalisation of output
 normalized_output = (output_data - min_action) / action_step
+normalized_output_test = (test_output - min_action) / action_step
 
 output_count = (max_action - min_action) / action_step + 1
 
@@ -36,3 +39,6 @@ model.compile(optimizer='adam',
               metrics=['accuracy'])
 
 model.fit(input_data, normalized_output, epochs=100)
+
+res = model.evaluate(test_input, normalized_output_test)
+print(res)
