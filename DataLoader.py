@@ -48,9 +48,13 @@ class DataLoader:
         output_data = private[:, 0]
         return input_data, output_data
 
-    def load_data(self):
+    def window_stack(self, arr, step_size, width):
+        return np.hstack(arr[i:1 + i - width or None:step_size] for i in range(0, width))
+
+    def load_data(self, window_size):
         market_rows = self.load_market_data()
-        private_rows = self.load_private_data()
+        market_rows = self.window_stack(market_rows, 1, window_size)
+        private_rows = self.load_private_data()[window_size-1:]
         assert market_rows.shape[0] == private_rows.shape[0]
         input, output = self.combine_market_and_private_data(market_rows, private_rows)
         return input, output

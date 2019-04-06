@@ -14,7 +14,8 @@ max_action = int(sys.argv[6])
 min_action = int(sys.argv[7])
 action_step = int(sys.argv[8])
 
-input_data, output_data = DataLoader(folder, 4).load_data()
+window_size = 9
+input_data, output_data = DataLoader(folder, 4).load_data(window_size)
 
 # normalisation of output
 normalized_output = (output_data - min_action) / action_step
@@ -22,8 +23,11 @@ normalized_output = (output_data - min_action) / action_step
 output_count = (max_action - min_action) / action_step + 1
 
 model = keras.Sequential([
-    keras.layers.Flatten(input_shape=(6,)),
-    keras.layers.Dense(128, activation=tf.nn.relu),
+    keras.layers.Flatten(input_shape=(2+4*window_size,)),
+    keras.layers.Dense(128, activation=tf.nn.leaky_relu),
+    keras.layers.Dense(128, activation=tf.nn.sigmoid),
+    keras.layers.Dense(128, activation=tf.nn.leaky_relu),
+    keras.layers.Dense(128, activation=tf.nn.sigmoid),
     keras.layers.Dense(output_count, activation=tf.nn.softmax)
 ])
 
