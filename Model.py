@@ -19,10 +19,12 @@ input_data, output_data = DataLoader(folder, 4).load_data()
 # normalisation of output
 normalized_output = (output_data - min_action) / action_step
 
+output_count = (max_action - min_action) / action_step + 1
+
 model = keras.Sequential([
     keras.layers.Flatten(input_shape=(6,)),
     keras.layers.Dense(128, activation=tf.nn.relu),
-    keras.layers.Dense((max_action - min_action) / action_step + 1, activation=tf.nn.softmax)
+    keras.layers.Dense(output_count, activation=tf.nn.softmax)
 ])
 
 model.compile(optimizer='adam',
