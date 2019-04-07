@@ -117,11 +117,5 @@ class OptimizationEngine:
         result = results[floor(total_inventory / self.inventory_step)]
         if len(result.actions) != self.time_count or len(result.inventory) != self.time_count:
             return Strategy(0, [], [])
-
-        idx = 0
-        while self.order_book_entries(idx).shape[0] == 0 or self.order_book_entries(idx).shape[1] == 0:
-            idx += 1
-        first_order_book = self.order_book_entries(idx)
-        mid_spread = self.mid_spread_from_order_book(first_order_book)
-        result = results[floor(total_inventory / self.inventory_step)]
-        return Strategy(result.cost - mid_spread * total_inventory, result.actions, result.inventory)
+        
+        return result

@@ -3,6 +3,9 @@
 import tensorflow as tf
 from tensorflow import keras
 from DataLoader import DataLoader
+from ModelEvaluator import ModelEvaluator
+import numpy as np
+from os.path import join
 import sys
 
 train_folder = sys.argv[1]
@@ -38,8 +41,11 @@ model.compile(optimizer='adam',
               loss='sparse_categorical_crossentropy',
               metrics=['accuracy'])
 
-model.fit(input_data, normalized_output, epochs=100)
+model.fit(input_data, normalized_output, epochs=10)
 
 res = model.evaluate(test_input, normalized_output_test)
 print(res)
-# output_prediction = model.predict(test_input)
+
+possible_actions = range(max_action, min_action, -action_step)
+evaluation_result = ModelEvaluator.evaluate(model, test_folder, volume, volume_step, time_horizon, time_step, int(9.5*60*60), 16*60*60, possible_actions, action_step)
+print(evaluation_result)
