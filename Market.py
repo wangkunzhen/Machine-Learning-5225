@@ -39,13 +39,16 @@ for (msg_book_file, order_book_file) in zip(msg_book_files, order_book_files):
     trade_start_time = int(9.5 * 60 * 60)
     trade_end_time = int(16 * 60 * 60)
     daily_result = []
-    for start_time in range(trade_start_time, trade_end_time, time_horizon):
+    for start_time in range(trade_start_time + time_horizon, trade_end_time, time_horizon):
         end_time = start_time + time_horizon
         decision_points = range(start_time, end_time, time_step)
         for decision_pt in decision_points:
             order_book_step = np.asarray([order_book[i][:]
                                           for i in range(0, msg_book.shape[0])
                                           if decision_pt - time_step < msg_book[i][0] <= decision_pt])
+            if decision_pt == trade_end_time:
+                continue
+
             relative_order_book = [(np.average(order_book_step[:-1, 0]) - order_book_step[-1, 0]) / order_book_step[-1, 0],
                                    (np.average(order_book_step[:-1, 2]) - order_book_step[-1, 2]) / order_book_step[-1, 2]] # %
             order_book_spread = np.average((order_book_step[:, 0] - order_book_step[:, 2]) / order_book_step[:, 0]) # %
@@ -54,9 +57,9 @@ for (msg_book_file, order_book_file) in zip(msg_book_files, order_book_files):
             order_book_trend = [floor(x * 1e6) for x in order_book_trend]
             relative_order_book = [floor(x * 1e4) for x in relative_order_book]
             order_book_spread = floor(order_book_spread * 1e4)
-            print("Time " + str(decision_pt))
-            print([relative_order_book[0], relative_order_book[1], order_book_spread, order_book_trend[0], order_book_trend[1]])
-            daily_result.append([relative_order_book[0], relative_order_book[1], order_book_spread, order_book_trend[0], order_book_trend[1]])
+            daily_result_entry = [relative_order_book[0], relative_order_book[1], order_book_spread, order_book_trend[0], order_book_trend[1]]
+            print("Time " + str(decision_pt) + " " + str(daily_result_entry))
+            daily_result.append(daily_result_entry)
     date_string = msg_book_file.split("_")[1]
     formatted_date_string = ''.join(date_string.split("-"))
     output_filename = "market_new_" + formatted_date_string + ".csv"

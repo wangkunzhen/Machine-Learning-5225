@@ -17,10 +17,10 @@ class DataLoader:
         market_files = np.asarray(
             [join(self.path, f) for f in listdir(self.path) if isfile(join(self.path, f)) and f.startswith("market")])
         market_files.sort()
-        market_rows = np.asarray([np.asarray(pd.read_csv(f)) for f in market_files])
-        shape = market_rows.shape
-        flatten_rows = market_rows.reshape(shape[0]*shape[1], shape[2])
-        return flatten_rows
+        data_arr = [pd.read_csv(f, header=None) for f in market_files]
+        market_df = pd.concat(data_arr)
+        market_rows = np.asarray(market_df)
+        return market_rows
         # return self.reshape_market_data(flatten_rows)
 
     def reshape_market_data(self, market_rows):
@@ -31,7 +31,7 @@ class DataLoader:
         private_files = np.asarray(
             [join(self.path, f) for f in listdir(self.path) if isfile(join(self.path, f)) and f.startswith("private")])
         private_files.sort()
-        rows = np.asarray([np.asarray(pd.read_csv(f)) for f in private_files])
+        rows = np.asarray([np.asarray(pd.read_csv(f, header=None)) for f in private_files])
         shape = rows.shape
         flatten_rows = rows.reshape(shape[0] * shape[1], shape[2])
         return self.reshape_private_data(flatten_rows)
@@ -55,7 +55,7 @@ class DataLoader:
     def load_data(self, window_size):
         market_rows = self.load_market_data()
         market_rows = self.window_stack(market_rows, 1, window_size)
-        private_rows = self.load_private_data()[window_size-1:]
+        private_rows = self.load_private_data()[window_size-1:, :]
         assert market_rows.shape[0] == private_rows.shape[0]
         input, output = self.combine_market_and_private_data(market_rows, private_rows)
         return input, output

@@ -127,7 +127,7 @@ for inum in range(46,num_file):
           num = tmp_up-tmp_low
           mlist = {}
           mlist["tmp_avg"] = moving_average[tmp_low:tmp_up]
-          mlist["tmp_spread"] = spread[tmp_low:tmp_up] 
+          mlist["tmp_spread"] = spread[tmp_low:tmp_up]
           mlist["tmp_mid"] = mid_spread[tmp_low:tmp_up]
           mlist["tmp_mis"] = vol_mis[tmp_low:tmp_up]
           divide_factor = [0,int(num/6)-1,int(num/6*2)-1,int(num/6*3)-1,int(num/6*4)-1,int(num/6*5)-1,num-1]
