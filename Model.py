@@ -41,7 +41,7 @@ model.compile(optimizer='adam',
               loss='sparse_categorical_crossentropy',
               metrics=['accuracy'])
 
-model.fit(input_data, normalized_output, epochs=10)
+model.fit(input_data, normalized_output, epochs=100)
 
 res = model.evaluate(test_input, normalized_output_test)
 print(res)

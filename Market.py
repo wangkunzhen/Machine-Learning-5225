@@ -20,6 +20,7 @@ if not exists(output_folder):
 
 time_horizon = int(sys.argv[2])
 time_step = int(sys.argv[3])
+moving_window = int(sys.argv[4])
 
 msg_book_files = [f for f in listdir(data_folder) if isfile(join(data_folder, f)) and f.endswith("message_5.csv")]
 order_book_files = [f for f in listdir(data_folder) if isfile(join(data_folder, f)) and f.endswith("orderbook_5.csv")]
@@ -39,6 +40,16 @@ for (msg_book_file, order_book_file) in zip(msg_book_files, order_book_files):
     trade_start_time = int(9.5 * 60 * 60)
     trade_end_time = int(16 * 60 * 60)
     daily_result = []
+    moving_average = np.zeros([order_book.shape[0], 1])
+    for iline in range(order_book.shape[0]):
+        if iline < moving_window:
+            continue
+        else:
+            moving_average[iline] = np.mean(order_book[iline - 30:iline - 1, 0])
+    moving_average[0:moving_window - 1] = moving_average[moving_window]
+
+    order_book = np.column_stack((order_book, moving_average))
+
     for start_time in range(trade_start_time + time_horizon, trade_end_time, time_horizon):
         end_time = start_time + time_horizon
         decision_points = range(start_time, end_time, time_step)
@@ -49,15 +60,18 @@ for (msg_book_file, order_book_file) in zip(msg_book_files, order_book_files):
             if decision_pt == trade_end_time:
                 continue
 
-            relative_order_book = [(np.average(order_book_step[:-1, 0]) - order_book_step[-1, 0]) / order_book_step[-1, 0],
-                                   (np.average(order_book_step[:-1, 2]) - order_book_step[-1, 2]) / order_book_step[-1, 2]] # %
-            order_book_spread = np.average((order_book_step[:, 0] - order_book_step[:, 2]) / order_book_step[:, 0]) # %
-            order_book_trend = [np.average((order_book_step[1:, 0] - order_book_step[:-1, 0]) / order_book_step[-1, 0]),
-                                np.average((order_book_step[1:, 2] - order_book_step[:-1, 2]) / order_book_step[-1, 2])]
-            order_book_trend = [floor(x * 1e6) for x in order_book_trend]
-            relative_order_book = [floor(x * 1e4) for x in relative_order_book]
-            order_book_spread = floor(order_book_spread * 1e4)
-            daily_result_entry = [relative_order_book[0], relative_order_book[1], order_book_spread, order_book_trend[0], order_book_trend[1]]
+            order_book_moving_avg = (order_book_step[0, -1] - order_book_step[0, 0]) / order_book_step[0, 0]
+            order_book_mismatch = abs(order_book_step[0, 1] - order_book_step[0, 3])
+            order_book_spread = order_book_step[0, 0] - order_book_step[0, 2]
+            order_book_trend = (order_book_step[0, 0] - order_book_step[0, -1]) / order_book_step[0, -1]
+
+            # normalization
+            order_book_moving_avg = floor(order_book_moving_avg * 1e5)
+            order_book_mismatch = floor(order_book_mismatch / 100)
+            order_book_spread = floor(order_book_spread / 100)
+            order_book_trend = floor(order_book_trend * 1e5)
+
+            daily_result_entry = [order_book_spread, order_book_trend, order_book_mismatch, order_book_moving_avg]
             print("Time " + str(decision_pt) + " " + str(daily_result_entry))
             daily_result.append(daily_result_entry)
     date_string = msg_book_file.split("_")[1]
