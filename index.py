@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
 import sys
-from os.path import isfile, join, exists
+from os.path import join, exists
 from os import mkdir
 from Market import Market
+from TradeOptimizer import TradeOptimizer
 
 # arguments
 data_folder = sys.argv[1]
@@ -41,3 +42,8 @@ trade_end = int(16*60*60)
 # compute market variable
 Market(train_data_folder, train_market_output, time_horizon, time_step, moving_window, trade_start, trade_end).load()
 Market(test_data_folder, test_market_output, time_horizon, time_step, moving_window, trade_start, trade_end).load()
+
+# compute optimal strategy
+train_opt = TradeOptimizer(train_data_folder, train_private_output, volume, volume_step, time_horizon, time_step,
+                           max_action, min_action, action_step, trade_start, trade_end)
+train_opt.optimize_trade_execution()
