@@ -45,5 +45,5 @@ Market(test_data_folder, test_market_output, time_horizon, time_step, moving_win
 
 # compute optimal strategy
 train_opt = TradeOptimizer(train_data_folder, train_private_output, volume, volume_step, time_horizon, time_step,
-                           max_action, min_action, action_step, trade_start, trade_end)
+                           max_action, min_action, -action_step, trade_start, trade_end)
 train_opt.optimize_trade_execution()
