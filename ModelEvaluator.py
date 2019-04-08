@@ -5,7 +5,7 @@ Created on Sun Apr 7
 
 from ExecutionEngine import ExecutionEngine
 from OptimizationEngine import OptimizationEngine
-from ModelTrainer import ModelTrainer
+from ModelUtil import ModelUtil
 from os.path import isfile, join
 from os import listdir
 import pandas as pd
@@ -43,10 +43,10 @@ class ModelEvaluator:
                 total_steps = int(time / time_step)
                 remaining_inventory = volume
                 for t in range(start, end, time_step):
-                    market_variables = ModelTrainer.calculate_market_input(msg_book_episode, order_book_episode, t,
-                                                                           t + time_step, window_size)
+                    market_variables = ModelUtil.calculate_market_input(msg_book_episode, order_book_episode, t,
+                                                                        t + time_step, window_size)
                     remaining_steps = total_steps - (t - start) / time_step
-                    model_input = ModelTrainer.model_input(market_variables, remaining_inventory, remaining_steps)
+                    model_input = ModelUtil.model_input(market_variables, remaining_inventory, remaining_steps)
                     predictions = model.predict(np.array([model_input]))
                     action = list(possible_actions)[np.argmax(predictions)]
                     msg_book_step = np.asarray([m for m in msg_book_episode if t < m[0] <= t + time_step])

@@ -2,7 +2,7 @@ import numpy as np
 from math import floor
 
 
-class ModelTrainer:
+class ModelUtil:
     @staticmethod
     def calculate_market_input(msg_book, order_book, start, end, moving_window):
         moving_average = np.zeros([order_book.shape[0], 1])

@@ -11,7 +11,7 @@ import numpy as np
 from os import listdir, mkdir
 from os.path import isfile, join, exists
 from math import floor
-from ModelTrainer import ModelTrainer
+from ModelUtil import ModelUtil
 
 data_folder = sys.argv[1]
 output_folder = data_folder + "/output"
@@ -61,7 +61,7 @@ for (msg_book_file, order_book_file) in zip(msg_book_files, order_book_files):
             if decision_pt == trade_end_time:
                 continue
 
-            daily_result_entry = ModelTrainer.calculate_market_input(msg_book, order_book, decision_pt - time_step, decision_pt, moving_window)
+            daily_result_entry = ModelUtil.calculate_market_input(msg_book, order_book, decision_pt - time_step, decision_pt, moving_window)
             print("Time " + str(decision_pt) + " " + str(daily_result_entry))
             daily_result.append(daily_result_entry)
     date_string = msg_book_file.split("_")[1]
