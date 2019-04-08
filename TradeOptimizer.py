@@ -1,10 +1,3 @@
-#!/usr/bin/env python
-
-"""
-Created on Sun Mar 31
-@author: Wang Kunzhen
-"""
-
 import time
 import csv
 import pandas as pd

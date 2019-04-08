@@ -18,6 +18,10 @@ class ModelUtil:
         order_book_step = np.asarray([order_book_padded[i][:]
                                       for i in range(0, msg_book.shape[0])
                                       if start < msg_book[i][0] <= end])
+
+        if not order_book_step.shape[0]:
+            return np.asarray([0, 0, 0, 0])
+
         order_book_moving_avg = (order_book_step[0, -1] - order_book_step[0, 0]) / order_book_step[0, 0]
         order_book_mismatch = abs(order_book_step[0, 1] - order_book_step[0, 3])
         order_book_spread = order_book_step[0, 0] - order_book_step[0, 2]
