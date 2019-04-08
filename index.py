@@ -46,9 +46,11 @@ trade_start = int(9.5*60*60)
 trade_end = int(16*60*60)
 window_size = 1
 
-"""
+
 # compute market variable
 Market(train_data_folder, train_market_output, time_horizon, time_step, moving_window, trade_start, trade_end).load()
+
+"""
 Market(test_data_folder, test_market_output, time_horizon, time_step, moving_window, trade_start, trade_end).load()
 
 # compute optimal strategy

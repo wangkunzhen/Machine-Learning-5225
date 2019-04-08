@@ -37,15 +37,6 @@ class Market:
             trade_start_time = self.trade_start
             trade_end_time = self.trade_end
             daily_result = []
-            moving_average = np.zeros([order_book.shape[0], 1])
-            for iline in range(order_book.shape[0]):
-                if iline < self.moving_window:
-                    continue
-                else:
-                    moving_average[iline] = np.mean(order_book[iline - 30:iline - 1, 0])
-            moving_average[0:self.moving_window - 1] = moving_average[self.moving_window]
-            order_book = np.column_stack((order_book, moving_average))
-
             for start_time in range(trade_start_time + self.time_horizon, trade_end_time, self.time_horizon):
                 end_time = start_time + self.time_horizon
                 decision_points = range(start_time, end_time, self.time_step)
@@ -56,7 +47,8 @@ class Market:
                     daily_result_entry = ModelUtil.calculate_market_input(msg_book,
                                                                           order_book,
                                                                           decision_pt - self.time_step,
-                                                                          decision_pt, self.moving_window)
+                                                                          decision_pt,
+                                                                          self.moving_window)
                     print("Time " + str(decision_pt) + " " + str(daily_result_entry))
                     daily_result.append(daily_result_entry)
             date_string = msg_book_file.split("_")[1]
