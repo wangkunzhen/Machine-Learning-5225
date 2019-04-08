@@ -44,7 +44,6 @@ class Market:
                 else:
                     moving_average[iline] = np.mean(order_book[iline - 30:iline - 1, 0])
             moving_average[0:self.moving_window - 1] = moving_average[self.moving_window]
-
             order_book = np.column_stack((order_book, moving_average))
 
             for start_time in range(trade_start_time + self.time_horizon, trade_end_time, self.time_horizon):
