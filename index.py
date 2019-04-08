@@ -47,17 +47,17 @@ trade_end = int(16*60*60)
 window_size = 1
 
 # compute market variable
-# Market(train_data_folder, train_market_output, time_horizon, time_step, moving_window, trade_start, trade_end).load()
-# Market(test_data_folder, test_market_output, time_horizon, time_step, moving_window, trade_start, trade_end).load()
+Market(train_data_folder, train_market_output, time_horizon, time_step, moving_window, trade_start, trade_end).load()
+Market(test_data_folder, test_market_output, time_horizon, time_step, moving_window, trade_start, trade_end).load()
 
 # compute optimal strategy
-# train_opt = TradeOptimizer(train_data_folder, train_private_output, volume, volume_step, time_horizon, time_step,
-#                            max_action, min_action, -action_step, trade_start, trade_end)
-# train_opt.optimize_trade_execution()
+train_opt = TradeOptimizer(train_data_folder, train_private_output, volume, volume_step, time_horizon, time_step,
+                           max_action, min_action, -action_step, trade_start, trade_end)
+train_opt.optimize_trade_execution()
 
-# private_opt = TradeOptimizer(test_data_folder, train_private_output, volume, volume_step, time_horizon, time_step,
-#                              max_action, min_action, -action_step, trade_start, trade_end)
-# private_opt.optimize_trade_execution()
+private_opt = TradeOptimizer(test_data_folder, train_private_output, volume, volume_step, time_horizon, time_step,
+                             max_action, min_action, -action_step, trade_start, trade_end)
+private_opt.optimize_trade_execution()
 
 # fit model
 model_trainer = Model(private_folder, market_folder, volume, volume_step, time_horizon, time_step,
@@ -66,7 +66,7 @@ model, loss, accuracy = model_trainer.fit_model(10)
 model_json = model.to_json()
 with open(join(model_output, "model.json"), "w") as json_file:
     json_file.write(model_json)
-model.save_weights("model_weights.h5")
+model.save_weights(join(model_output, "model_weights.h5"))
 
 # evaluate model
 possible_actions = range(max_action, min_action, -action_step)

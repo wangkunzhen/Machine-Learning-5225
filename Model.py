@@ -72,7 +72,7 @@ class Model:
             [join(folder, f) for f in listdir(folder) if isfile(join(folder, f)) and f.startswith("market")])
         market_files.sort()
         print("Loading market data folder. Found " + str(len(market_files)) + " market files")
-        market_rows = np.concatenate([self.load_market_data(f) for f in market_files])[self.window_size-1, :]
+        market_rows = np.concatenate([self.load_market_data(f) for f in market_files])
         print("Loaded market data folder. Total " + str(len(market_rows)) + " rows")
         return market_rows
 
