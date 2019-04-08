@@ -104,7 +104,3 @@ class Model:
     @staticmethod
     def window_stack(arr, step_size, width):
         return np.hstack(arr[i:1 + i - width or None:step_size] for i in range(0, width))
-
-# possible_actions = range(max_action, min_action, -action_step)
-# evaluation_result = ModelEvaluator.evaluate(model, test_folder, volume, volume_step, time_horizon, time_step, int(9.5*60*60), 16*60*60, possible_actions, action_step, 30)
-# print(evaluation_result)

@@ -6,6 +6,7 @@ from os import mkdir
 from Market import Market
 from TradeOptimizer import TradeOptimizer
 from Model import Model
+from ModelEvaluator import ModelEvaluator
 
 # arguments
 data_folder = sys.argv[1]
@@ -46,17 +47,17 @@ trade_end = int(16*60*60)
 window_size = 1
 
 # compute market variable
-Market(train_data_folder, train_market_output, time_horizon, time_step, moving_window, trade_start, trade_end).load()
-Market(test_data_folder, test_market_output, time_horizon, time_step, moving_window, trade_start, trade_end).load()
+# Market(train_data_folder, train_market_output, time_horizon, time_step, moving_window, trade_start, trade_end).load()
+# Market(test_data_folder, test_market_output, time_horizon, time_step, moving_window, trade_start, trade_end).load()
 
 # compute optimal strategy
-train_opt = TradeOptimizer(train_data_folder, train_private_output, volume, volume_step, time_horizon, time_step,
-                           max_action, min_action, -action_step, trade_start, trade_end)
-train_opt.optimize_trade_execution()
+# train_opt = TradeOptimizer(train_data_folder, train_private_output, volume, volume_step, time_horizon, time_step,
+#                            max_action, min_action, -action_step, trade_start, trade_end)
+# train_opt.optimize_trade_execution()
 
-private_opt = TradeOptimizer(test_data_folder, train_private_output, volume, volume_step, time_horizon, time_step,
-                             max_action, min_action, -action_step, trade_start, trade_end)
-private_opt.optimize_trade_execution()
+# private_opt = TradeOptimizer(test_data_folder, train_private_output, volume, volume_step, time_horizon, time_step,
+#                              max_action, min_action, -action_step, trade_start, trade_end)
+# private_opt.optimize_trade_execution()
 
 # fit model
 model_trainer = Model(private_folder, market_folder, volume, volume_step, time_horizon, time_step,
@@ -67,3 +68,9 @@ with open(join(model_output, "model.json"), "w") as json_file:
     json_file.write(model_json)
 model.save_weights("model_weights.h5")
 
+# evaluate model
+possible_actions = range(max_action, min_action, -action_step)
+evaluation_result = ModelEvaluator.evaluate(model, test_data_folder, volume, volume_step, time_horizon, time_step,
+                                            trade_start, trade_end, possible_actions, action_step, moving_window)
+with open(join(model_output, "evaluation.csv")) as file:
+    file.writelines(evaluation_result)

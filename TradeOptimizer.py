@@ -38,13 +38,6 @@ class TradeOptimizer:
         self.action_step = action_step
         self.trade_start = trade_start
         self.trade_end = trade_end
-        TradeOptimizer.reset_directory_if_needed(self.output_folder)
-
-    @staticmethod
-    def reset_directory_if_needed(path):
-        if exists(path):
-            rmtree(path)
-        mkdir(path)
 
     def optimize_trade_execution(self):
         actions = range(self.max_action, self.min_action, self.action_step)
