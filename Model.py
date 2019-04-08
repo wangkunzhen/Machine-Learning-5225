@@ -9,7 +9,8 @@ import pandas as pd
 
 
 class Model:
-    def __init__(self, private_folder, market_folder, volume, volume_step, time_horizon, time_step, max_action, min_action, action_step, window_size):
+    def __init__(self, private_folder, market_folder, volume, volume_step, time_horizon, time_step, max_action,
+                 min_action, action_step, window_size):
         self.private_folder = private_folder
         self.market_folder = market_folder
         self.volume = volume
@@ -24,10 +25,19 @@ class Model:
     def fit_model(self, epochs):
         training_market_folder = join(self.market_folder, "Train")
         training_private_folder = join(self.private_folder, "Train")
-        input_data, output_data, private_variable_size, market_variable_size = self.load_data(training_market_folder, training_private_folder)
+        input_data, output_data, private_variable_size, market_variable_size = self.load_data(training_market_folder,
+                                                                                              training_private_folder)
         model = self.model(private_variable_size, market_variable_size)
         model.fit(input_data, output_data, epochs=epochs)
-        return model
+
+        print("Evaluating model accuracy")
+        test_market_folder = join(self.market_folder, "Test")
+        test_private_folder = join(self.private_folder, "Test")
+        test_input, test_output, private_variable_size, market_variable_size = self.load_data(test_market_folder,
+                                                                                              test_private_folder)
+        loss, accuracy = model.evaluate(test_input, test_output)
+        print("Loss " + str(loss) + " Accuracy " + str(accuracy))
+        return model, loss, accuracy
 
     def model(self, private_variable_size, market_variable_size):
         output_count = (self.max_action - self.min_action) / self.action_step + 1
@@ -52,7 +62,7 @@ class Model:
         assert len(market_rows) == len(private_rows)
         repeat_count = int(market_rows.shape[0] / time_step_per_episode)
         repeated_remaining_count = np.repeat(np.asarray(range(time_step_per_episode, 0, -1)), repeat_count)
-        remaining_times = repeated_remaining_count.reshape(repeat_count, time_step_per_episode, order='F') \
+        remaining_times = repeated_remaining_count.reshape(repeat_count, time_step_per_episode, order='F')\
             .reshape(market_rows.shape[0], 1)
         input_data = np.hstack((market_rows, private_rows[:, 1:], remaining_times))
         output_data = private_rows[:, 0]
@@ -65,7 +75,7 @@ class Model:
         market_files.sort()
         print("Loading market data folder. Found " + str(len(market_files)) + " market files")
         market_rows = np.concatenate([self.load_market_data(f) for f in market_files])[self.window_size-1, :]
-        print("Loaded market data folder. Total " + str(len(market_rows) + " rows"))
+        print("Loaded market data folder. Total " + str(len(market_rows)) + " rows")
         return market_rows
 
     def load_market_data(self, file):
@@ -83,7 +93,7 @@ class Model:
         print("Loading private data folder. Found " + str(len(private_files)) + " private files")
         private_rows = np.concatenate([self.load_private_data(f) for f in private_files])
         private_rows = Model.window_stack(private_rows, 1, self.window_size)
-        print("Loaded private data folder. Total " + str(len(private_rows) + " rows"))
+        print("Loaded private data folder. Total " + str(len(private_rows)) + " rows")
         return private_rows
 
     def load_private_data(self, file):
@@ -97,9 +107,6 @@ class Model:
     def window_stack(arr, step_size, width):
         return np.hstack(arr[i:1 + i - width or None:step_size] for i in range(0, width))
 
-# res = model.evaluate(test_input, normalized_output_test)
-# print(res)
-#
 # possible_actions = range(max_action, min_action, -action_step)
 # evaluation_result = ModelEvaluator.evaluate(model, test_folder, volume, volume_step, time_horizon, time_step, int(9.5*60*60), 16*60*60, possible_actions, action_step, 30)
 # print(evaluation_result)
