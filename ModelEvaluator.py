@@ -67,7 +67,8 @@ class ModelEvaluator:
                     remaining_inventory = remaining[0]
                     if remaining_inventory is 0:
                         break
-                evaluation_result[day_idx, row_idx, 1] = model_cost
+                last_period_cost = exe_engine.cost_T(order_book_step, remaining_inventory)
+                evaluation_result[day_idx, row_idx, 1] = model_cost + last_period_cost
 
                 percentage = (model_cost - optimal_cost) / optimal_cost
                 evaluation_result[day_idx, row_idx, 2] = percentage
