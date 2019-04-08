@@ -101,16 +101,3 @@ class TradeOptimizer:
             with open(join(self.output_folder, output_filename), "w") as f:
                 writer = csv.writer(f)
                 writer.writerows(daily_result)
-
-
-
-
-
-
-
-
-
-
-
-
-
