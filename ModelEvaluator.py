@@ -14,7 +14,7 @@ import numpy as np
 
 class ModelEvaluator:
     @staticmethod
-    def evaluate(model, test_folder, volume, volume_step, time, time_step, start_time, end_time, possible_actions, action_step):
+    def evaluate(model, test_folder, volume, volume_step, time, time_step, start_time, end_time, possible_actions, action_step, window_size):
         msg_book_files = [join(test_folder, f) for f in listdir(test_folder)
                           if isfile(join(test_folder, f)) and f.endswith("message_5.csv")]
         order_book_files = [join(test_folder, f) for f in listdir(test_folder)
@@ -55,7 +55,7 @@ class ModelEvaluator:
                 total_steps = int(time / time_step)
                 remaining_inventory = volume
                 for t in range(start, end, time_step):
-                    market_variables = ModelTrainer.calculate_market_input(msg_book_episode, order_book_episode, t, t + time_step)
+                    market_variables = ModelTrainer.calculate_market_input(msg_book_episode, order_book_episode, t, t + time_step, window_size)
                     remaining_steps = total_steps - (t - start) / time_step
                     model_input = ModelTrainer.model_input(market_variables, remaining_inventory, remaining_steps)
                     predictions = model.predict(np.array([model_input]))

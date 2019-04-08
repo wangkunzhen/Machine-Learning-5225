@@ -29,7 +29,7 @@ normalized_output_test = (test_output - min_action) / action_step
 output_count = (max_action - min_action) / action_step + 1
 
 model = keras.Sequential([
-    keras.layers.Flatten(input_shape=(2+5*window_size,)),
+    keras.layers.Flatten(input_shape=(2+4*window_size,)),
     keras.layers.Dense(128, activation=tf.nn.leaky_relu),
     keras.layers.Dense(128, activation=tf.nn.leaky_relu),
     keras.layers.Dense(128, activation=tf.nn.leaky_relu),
@@ -41,11 +41,11 @@ model.compile(optimizer='adam',
               loss='sparse_categorical_crossentropy',
               metrics=['accuracy'])
 
-model.fit(input_data, normalized_output, epochs=100)
+model.fit(input_data, normalized_output, epochs=10)
 
 res = model.evaluate(test_input, normalized_output_test)
 print(res)
 
 possible_actions = range(max_action, min_action, -action_step)
-evaluation_result = ModelEvaluator.evaluate(model, test_folder, volume, volume_step, time_horizon, time_step, int(9.5*60*60), 16*60*60, possible_actions, action_step)
+evaluation_result = ModelEvaluator.evaluate(model, test_folder, volume, volume_step, time_horizon, time_step, int(9.5*60*60), 16*60*60, possible_actions, action_step, 30)
 print(evaluation_result)

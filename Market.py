@@ -11,6 +11,7 @@ import numpy as np
 from os import listdir, mkdir
 from os.path import isfile, join, exists
 from math import floor
+from ModelTrainer import ModelTrainer
 
 data_folder = sys.argv[1]
 output_folder = data_folder + "/output"
@@ -60,18 +61,18 @@ for (msg_book_file, order_book_file) in zip(msg_book_files, order_book_files):
             if decision_pt == trade_end_time:
                 continue
 
-            order_book_moving_avg = (order_book_step[0, -1] - order_book_step[0, 0]) / order_book_step[0, 0]
-            order_book_mismatch = abs(order_book_step[0, 1] - order_book_step[0, 3])
-            order_book_spread = order_book_step[0, 0] - order_book_step[0, 2]
-            order_book_trend = (order_book_step[0, 0] - order_book_step[0, -1]) / order_book_step[0, -1]
+            # order_book_moving_avg = (order_book_step[0, -1] - order_book_step[0, 0]) / order_book_step[0, 0]
+            # order_book_mismatch = abs(order_book_step[0, 1] - order_book_step[0, 3])
+            # order_book_spread = order_book_step[0, 0] - order_book_step[0, 2]
+            # order_book_trend = (order_book_step[0, 0] - order_book_step[0, -1]) / order_book_step[0, -1]
+            #
+            # # normalization
+            # order_book_moving_avg = floor(order_book_moving_avg * 1e5)
+            # order_book_mismatch = floor(order_book_mismatch / 100)
+            # order_book_spread = floor(order_book_spread / 100)
+            # order_book_trend = floor(order_book_trend * 1e5)
 
-            # normalization
-            order_book_moving_avg = floor(order_book_moving_avg * 1e5)
-            order_book_mismatch = floor(order_book_mismatch / 100)
-            order_book_spread = floor(order_book_spread / 100)
-            order_book_trend = floor(order_book_trend * 1e5)
-
-            daily_result_entry = [order_book_spread, order_book_trend, order_book_mismatch, order_book_moving_avg]
+            daily_result_entry = ModelTrainer.calculate_market_input(msg_book, order_book, decision_pt - time_step, decision_pt)
             print("Time " + str(decision_pt) + " " + str(daily_result_entry))
             daily_result.append(daily_result_entry)
     date_string = msg_book_file.split("_")[1]
