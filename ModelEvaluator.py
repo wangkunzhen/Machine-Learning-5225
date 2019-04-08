@@ -38,6 +38,29 @@ class ModelEvaluator:
 
                 row_idx = int((start - start_time) / time_step)
 
+                # Model Cost
+                model_cost = 0
+                total_steps = int(time / time_step)
+                remaining_inventory = volume
+                for t in range(start, end, time_step):
+                    market_variables = ModelTrainer.calculate_market_input(msg_book_episode, order_book_episode, t,
+                                                                           t + time_step, window_size)
+                    remaining_steps = total_steps - (t - start) / time_step
+                    model_input = ModelTrainer.model_input(market_variables, remaining_inventory, remaining_steps)
+                    predictions = model.predict(np.array([model_input]))
+                    action = list(possible_actions)[np.argmax(predictions)]
+                    msg_book_step = np.asarray([m for m in msg_book_episode if t < m[0] <= t + time_step])
+                    order_book_step = np.asarray([order_book_episode[i] for i in range(0, msg_book_episode.shape[0]) if
+                                                  t < msg_book_episode[i, 0] <= t + time_step])
+                    cost, remaining = exe_engine.cost_other(msg_book_step, order_book_step, remaining_inventory,
+                                                            [action])
+                    model_cost += cost[0]
+                    remaining_inventory = remaining[0]
+                    if remaining_inventory is 0:
+                        break
+                last_period_cost = exe_engine.cost_T(order_book_step, remaining_inventory)
+                evaluation_result[day_idx, row_idx, 0] = model_cost + last_period_cost
+
                 # Optimal Cost
                 opt_engine = OptimizationEngine(order_book_episode,
                                                 msg_book_episode,
@@ -48,27 +71,7 @@ class ModelEvaluator:
                                                 int(volume / volume_step),
                                                 possible_actions)
                 optimal_cost = opt_engine.compute_optimal_solution(volume, exe_engine).cost
-                evaluation_result[day_idx, row_idx, 0] = optimal_cost
-
-                # Model Cost
-                model_cost = 0
-                total_steps = int(time / time_step)
-                remaining_inventory = volume
-                for t in range(start, end, time_step):
-                    market_variables = ModelTrainer.calculate_market_input(msg_book_episode, order_book_episode, t, t + time_step, window_size)
-                    remaining_steps = total_steps - (t - start) / time_step
-                    model_input = ModelTrainer.model_input(market_variables, remaining_inventory, remaining_steps)
-                    predictions = model.predict(np.array([model_input]))
-                    action = list(possible_actions)[np.argmax(predictions)]
-                    msg_book_step = np.asarray([m for m in msg_book_episode if t < m[0] <= t + time_step])
-                    order_book_step = np.asarray([order_book_episode[i] for i in range(0, msg_book_episode.shape[0]) if t < msg_book_episode[i, 0] <= t + time_step])
-                    cost, remaining = exe_engine.cost_other(msg_book_step, order_book_step, remaining_inventory, [action])
-                    model_cost += cost
-                    remaining_inventory = remaining[0]
-                    if remaining_inventory is 0:
-                        break
-                last_period_cost = exe_engine.cost_T(order_book_step, remaining_inventory)
-                evaluation_result[day_idx, row_idx, 1] = model_cost + last_period_cost
+                evaluation_result[day_idx, row_idx, 1] = optimal_cost
 
                 percentage = (model_cost - optimal_cost) / optimal_cost
                 evaluation_result[day_idx, row_idx, 2] = percentage
@@ -90,8 +93,8 @@ class ModelEvaluator:
                 mid_spread_improvement = (model_cost - mid_spread_cost) / mid_spread_cost
                 evaluation_result[day_idx, row_idx, 4] = mid_spread_improvement
 
-                print("Evaluated " + str(start) + " Optimal: " + str(percentage[0] * 100)
-                      + "%, Mid-spread: " + str(mid_spread_improvement[0] * 100) + "% " + str(evaluation_result[day_idx, row_idx, :]))
+                print("Evaluated " + str(start) + " Optimal: " + str(percentage * 100)
+                      + "%, Mid-spread: " + str(mid_spread_improvement * 100) + "% " + str(evaluation_result[day_idx, row_idx, :]))
 
         return np.asarray(evaluation_result)
 

@@ -4,8 +4,6 @@ import tensorflow as tf
 from tensorflow import keras
 from DataLoader import DataLoader
 from ModelEvaluator import ModelEvaluator
-import numpy as np
-from os.path import join
 import sys
 
 train_folder = sys.argv[1]
@@ -30,10 +28,10 @@ output_count = (max_action - min_action) / action_step + 1
 
 model = keras.Sequential([
     keras.layers.Flatten(input_shape=(2+4*window_size,)),
-    keras.layers.Dense(128, activation=tf.nn.leaky_relu),
-    keras.layers.Dense(128, activation=tf.nn.leaky_relu),
-    keras.layers.Dense(128, activation=tf.nn.leaky_relu),
-    keras.layers.Dense(128, activation=tf.nn.leaky_relu),
+    keras.layers.Dense(256, activation=tf.nn.leaky_relu),
+    keras.layers.Dense(256, activation=tf.nn.sigmoid),
+    keras.layers.Dense(256, activation=tf.nn.leaky_relu),
+    keras.layers.Dense(256, activation=tf.nn.sigmoid),
     keras.layers.Dense(output_count, activation=tf.nn.softmax)
 ])
 
@@ -41,7 +39,7 @@ model.compile(optimizer='adam',
               loss='sparse_categorical_crossentropy',
               metrics=['accuracy'])
 
-model.fit(input_data, normalized_output, epochs=10)
+model.fit(input_data, normalized_output, epochs=100)
 
 res = model.evaluate(test_input, normalized_output_test)
 print(res)
