@@ -48,6 +48,8 @@ class ModelEvaluator:
                     remaining_steps = total_steps - (t - start) / time_step
                     model_input = ModelUtil.model_input(market_variables, remaining_inventory, remaining_steps)
                     predictions = model.predict(np.array([model_input]))
+                    idx = np.argmax(predictions)
+                    possible_actions_list = list(possible_actions)
                     action = list(possible_actions)[np.argmax(predictions)]
                     msg_book_step = np.asarray([m for m in msg_book_episode if t < m[0] <= t + time_step])
                     order_book_step = np.asarray([order_book_episode[i] for i in range(0, msg_book_episode.shape[0]) if
@@ -90,11 +92,11 @@ class ModelEvaluator:
                 mid_spread_cost = mid_spred_opt_engine.compute_optimal_solution(volume, exe_engine).cost
                 evaluation_result[day_idx, row_idx, 3] = mid_spread_cost
 
-                mid_spread_improvement = (model_cost - mid_spread_cost) / mid_spread_cost
-                evaluation_result[day_idx, row_idx, 4] = mid_spread_improvement
+                mid_spread_to_optimal_improvement = (model_cost - mid_spread_cost) / (optimal_cost - mid_spread_cost)
+                evaluation_result[day_idx, row_idx, 4] = mid_spread_to_optimal_improvement
 
                 print("Evaluated " + str(start) + " Optimal: " + str(percentage * 100)
-                      + "%, Mid-spread: " + str(mid_spread_improvement * 100) + "% " + str(evaluation_result[day_idx, row_idx, :]))
+                      + "%, Mid-spread: " + str(mid_spread_to_optimal_improvement * 100) + "% " + str(evaluation_result[day_idx, row_idx, :]))
 
         return np.asarray(evaluation_result)
 
