@@ -95,8 +95,7 @@ class Model:
         return private_rows
 
     def load_private_data(self, file):
-        rows = np.asarray(pd.read_csv(file, header=None))
-        rows_without_cost = rows[:, :-1]
+        rows_without_cost = np.asarray(pd.read_csv(file, header=None))[1:, :-1]
         time_step_per_episode = int(self.time_horizon / self.time_step)
         private_len = int(rows_without_cost.shape[1] / time_step_per_episode)
         return rows_without_cost.reshape(time_step_per_episode * rows_without_cost.shape[0], private_len)
