@@ -48,6 +48,7 @@ window_size = 1
 
 
 # compute market variable
+"""
 Market(train_data_folder, train_market_output, time_horizon, time_step, moving_window, trade_start, trade_end).load()
 Market(test_data_folder, test_market_output, time_horizon, time_step, moving_window, trade_start, trade_end).load()
 
@@ -59,6 +60,7 @@ train_opt.optimize_trade_execution()
 private_opt = TradeOptimizer(test_data_folder, train_private_output, volume, volume_step, time_horizon, time_step,
                              max_action, min_action, -action_step, trade_start, trade_end)
 private_opt.optimize_trade_execution()
+"""
 
 # fit model
 model_trainer = Model(private_folder, market_folder, volume, volume_step, time_horizon, time_step,
