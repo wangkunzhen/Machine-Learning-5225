@@ -43,7 +43,8 @@ class Model:
             keras.layers.Flatten(input_shape=(private_variable_size + market_variable_size * self.window_size,)),
             keras.layers.Dense(256, activation=tf.nn.leaky_relu),
             keras.layers.Dense(256, activation=tf.nn.sigmoid),
-            keras.layers.Dense(256, activation=tf.nn.tanh),
+            keras.layers.Dropout(0.5),
+            keras.layers.Dense(256, activation=tf.nn.leaky_relu),
             keras.layers.Dense(256, activation=tf.nn.sigmoid),
             keras.layers.Dense(output_count, activation=tf.nn.softmax)
         ])
