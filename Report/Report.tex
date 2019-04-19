@@ -130,17 +130,17 @@ adopted by Adam is listed below.
 \\
 
 
-\noindent For evaluation metrics, the \href{https://github.com/tensorflow/tensorflow/blob/r1.13/tensorflow/python/ops/metrics_impl.py}{\textit{\textbf{accuracy}}}
-metric provided by \textit{Tensorflow Keras} is chosen:
-$$\textit{accuracy} = \frac{\textit{count}(\textit{prediction} == \textit{label})}{\textit{count}(\textit{predictions})}.$$
-Ultimately it measures how often the prediction matches the label provided. \\
+% \noindent For evaluation metrics, the \href{https://github.com/tensorflow/tensorflow/blob/r1.13/tensorflow/python/ops/metrics_impl.py}{\textit{\textbf{accuracy}}}
+% metric provided by \textit{Tensorflow Keras} is chosen:
+% $$\textit{accuracy} = \frac{\textit{count}(\textit{prediction} == \textit{label})}{\textit{count}(\textit{predictions})}.$$
+% Ultimately it measures how often the prediction matches the label provided. \\
 
 
 \noindent The model is trained with the aforementioned configurations for 2000 iterations,
 at which point we note that the cost remains relatively stable and the accuracy stops
 improving. Therefore, we stop the training process at 2000 iterations.
 
-\section{Results}
+\section{Results} \label{results}
 
 
 \section{Remarks \& Future Work}
@@ -149,8 +149,34 @@ for future improvement. We have yet to implement the improvements due to time co
 of the project. However, we would like to note them down here as remarks.
 
 \begin{itemize}
-  \item \textbf{Loss Function} For the current model training, the metric is chosen as \textit{\textbf{accuracy}}
-  to measure how often the prediction matches the label.
+  \item \textbf{Loss Function} For the current model training, the loss function is chosen as
+  \textbf{sparse categorical crossentropy} to measure the categorical crossentropy.
+  However, note that the label provided for the supervised training is the optimal
+  strategy, having such categorical crossentropy losses might over-penalize the
+  some of the predictions that could have done almost as good as the optimal solution
+  in terms of total strategy execution cost, though having completely different decisions
+  at each decision point. Therefore, a readily available alternative loss function
+  would be the \textbf{total strategy execution cost} as defined in Section \ref{results}.\\
+
+
+  We have implemented the loss function as per described in Section \ref{results}, but have yet
+  to integrate it to the training process because the implementation requires
+  extra inputs than those provided in the function signature required by \textit{Tensorflow Keras}.
+  To actually integrate the loss function, further understanding of the \textit{Tensorflow Keras}
+  framework is required.
+
+  \item \textbf{Model Inputs} Current choices of the model inputs, especially the
+  market variables, are somewhat arbitrary. We believe that further analysis is necessary
+  to justify that the market variables chosen are sufficient to predict the actions.
+  For example, a principle component analysis (PCA) should be performed for selection of the
+  market variables.
+
+  \item \textbf{Market Impact} Throughout our research, we have been assuming that
+  there is no market impact for the limit order we placed. That is, we placing a new
+  limit order to the market will not change the subsequent order book status except
+  for an extra message book entry. However, this is definitely not true, especially
+  when the volume becomes significant compared to the market volume. A model with such
+  market impact factored in \cite{market-impact} must be employed for real-life application.
 \end{itemize}
 
 \section{Conclusion}
@@ -166,6 +192,11 @@ Proceedings of the 23rd International Conference on Machine Learning, Pittsburgh
 Diederik P.Kingma, Jimmy Lei Ba.
 \textit{Adam: A Method for Stochastic Optimization}.
 ICLR, 2015.
+
+\bibitem{market-impact}
+Robert Kissel, Morton Glantz.
+\textit{Optimal Trading Strategies: Quantitative Approaches for Managing Market Impact and Trading Risk}.
+AMACOM, 2003.
 \end{thebibliography}
 
 \end{document}
