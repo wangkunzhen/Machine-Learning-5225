@@ -5,6 +5,7 @@
 \usepackage{amssymb}
 \usepackage{amsmath}
 \usepackage{graphicx}
+\usepackage{hyperref}
 
 \graphicspath{ {./images/} }
 
@@ -38,7 +39,7 @@ $$ \textit{action} = f(t, i, \textit{price level}, \textit{price trend}, \textit
 where $f$ is an unknown function to be learned. \\
 
 
-\noindent To estimate the function $f$, we develop a supervised deep learning model as described below.
+\noindent To estimate the function $f$, we develop a supervised deep learning model (thereafter referred to as \textit{the model}) as described below.
 The model is implemented with \textit{Tensorflow} and \textit{Tensorflow
 Keras} provided by Google Brain, using \textit{Python}.
 Implementation of the model can be found in the file \textit{Model.py}.\\
@@ -92,6 +93,7 @@ Describe the following:
 \begin{itemize}
   \item How market variables are extracted from the dataset. Please include the exact formula.
   \item Rational of why those market variables are chosen.
+  \item Point to the exact python file for reference.
 \end{itemize}
 
 \subsection{Private Variables} \label{private-variables}
@@ -100,23 +102,65 @@ Describe the following:
 \begin{itemize}
   \item How private variables are extracted from the dataset. Please include details on
   dynamic programming (esp. formula), execution simulation, variable discretization and considerations.
+  \item Point to the exact python file for reference.
 \end{itemize}
 
 \section{Model Training}
+To train the model, the loss function is first determined to be the
+\href{https://github.com/tensorflow/tensorflow/blob/r1.13/tensorflow/python/keras/backend.py}{\textbf{sparse categorical crossentropy}}
+loss provided by \textit{Tensorflow Keras}. The loss function is one of the standard
+choices in multi-categorization models, measuring the categorical crossentropy. \\
 
+
+\noindent For optimization algorithm, we choose the widely used \textbf{Adam Optimizer} \cite{adam}.
+It employes an adaptive learning rate and has a relatively efficient computational cost,
+making use of both the first and second moments of the gradients. Key update routine
+adopted by Adam is listed below.
+
+\begin{equation*}
+  \begin{split}
+    g_t &\leftarrow \nabla_{\theta} f_t (\theta_{t-1}) \text{(Get gradients w.r.t. stochastic objective at time t)} \\
+    m_t &\leftarrow \beta_1 \cdot m_{t-1} + (1-\beta_1) \cdot g_t \text{(Update biased first moment estimate)} \\
+    v_t &\leftarrow \beta_2 \cdoe v_{t-1} + (1-\beta_2) \cdot g_t^2 \text{(Update biased second moment estimate)} \\
+    \hat{m_{t}} &\leftarrow \frac{m_t}{1 - \beta_1^t} \text{(Compute bias corrected first moment estimate)} \\
+    \hat{v_{t}} &\leftarrow \frac{v_t}{1 - \beta_2^t} \text{(Compute bias corrected second moment estimate)} \\
+    \theta_t &\leftarrow \theta_{t-1} - \alpha \cdot \frac{\hat{m_t}}{\sqrt{\hat{v_t}} + \epsilon} \text{(Update parameters)}
+  \end{split}
+\end{equation*}
+\\
+
+
+\noindent For evaluation metrics, the \href{https://github.com/tensorflow/tensorflow/blob/r1.13/tensorflow/python/ops/metrics_impl.py}{\textit{\textbf{accuracy}}}
+metric provided by \textit{Tensorflow Keras} is chosen:
+$$\textit{accuracy} = \frac{\textit{count}(\textit{prediction} == \textit{label})}{\textit{count}(\textit{predictions})}.$$
+Ultimately it measures how often the prediction matches the label provided. \\
 
 \section{Results}
 
 
-\section{Remarks}
+\section{Remarks \& Future Work}
+Despite the satisfying performance of the model, there are still plenty of room
+for future improvement. We have yet to implement the improvements due to time constraint
+of the project. However, we would like to note them down here as remarks.
+
+\begin{itemize}
+  \item \textbf{Loss Function} For the current model training, the metric is chosen as \textit{\textbf{accuracy}}
+  to measure how often the prediction matches the label.
+\end{itemize}
 
 \section{Conclusion}
+
 
 \begin{thebibliography}{9}
 \bibitem{reinforcement}
 Yuriy Nevmyvaka, Yi Feng, Michael Kearns.
 \textit{Reinforcement Learning for Optimized Trade Execution}.
 Proceedings of the 23rd International Conference on Machine Learning, Pittsburgh, PA, 2006.
+
+\bibitem{adam}
+Diederik P.Kingma, Jimmy Lei Ba.
+\textit{ADAM: A METHOD FOR STOCHASTIC OPTIMIZATION}.
+ICLR, 2015.
 \end{thebibliography}
 
 \end{document}
