@@ -121,7 +121,7 @@ adopted by Adam is listed below.
   \begin{split}
     g_t &\leftarrow \nabla_{\theta} f_t (\theta_{t-1}) \text{(Get gradients w.r.t. stochastic objective at time t)} \\
     m_t &\leftarrow \beta_1 \cdot m_{t-1} + (1-\beta_1) \cdot g_t \text{(Update biased first moment estimate)} \\
-    v_t &\leftarrow \beta_2 \cdoe v_{t-1} + (1-\beta_2) \cdot g_t^2 \text{(Update biased second moment estimate)} \\
+    v_t &\leftarrow \beta_2 \cdot v_{t-1} + (1-\beta_2) \cdot g_t^2 \text{(Update biased second moment estimate)} \\
     \hat{m_{t}} &\leftarrow \frac{m_t}{1 - \beta_1^t} \text{(Compute bias corrected first moment estimate)} \\
     \hat{v_{t}} &\leftarrow \frac{v_t}{1 - \beta_2^t} \text{(Compute bias corrected second moment estimate)} \\
     \theta_t &\leftarrow \theta_{t-1} - \alpha \cdot \frac{\hat{m_t}}{\sqrt{\hat{v_t}} + \epsilon} \text{(Update parameters)}
@@ -134,6 +134,11 @@ adopted by Adam is listed below.
 metric provided by \textit{Tensorflow Keras} is chosen:
 $$\textit{accuracy} = \frac{\textit{count}(\textit{prediction} == \textit{label})}{\textit{count}(\textit{predictions})}.$$
 Ultimately it measures how often the prediction matches the label provided. \\
+
+
+\noindent The model is trained with the aforementioned configurations for 2000 iterations,
+at which point we note that the cost remains relatively stable and the accuracy stops
+improving. Therefore, we stop the training process at 2000 iterations.
 
 \section{Results}
 
@@ -159,7 +164,7 @@ Proceedings of the 23rd International Conference on Machine Learning, Pittsburgh
 
 \bibitem{adam}
 Diederik P.Kingma, Jimmy Lei Ba.
-\textit{ADAM: A METHOD FOR STOCHASTIC OPTIMIZATION}.
+\textit{Adam: A Method for Stochastic Optimization}.
 ICLR, 2015.
 \end{thebibliography}
 
