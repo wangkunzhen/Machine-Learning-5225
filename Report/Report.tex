@@ -103,8 +103,9 @@ is discretized.
 
 
 \section{Data Preparation}
-This section describes in depth the dataset our research bases on and
-how we extract the six aforementioned model inputs from the dataset.
+Describe and justify the value of $V, H, T, I$ chosen for the research. Please
+refrain from saying that it's what the paper has chosen. We should have our own
+rationale.
 
 \subsection{Data Description}
 
@@ -114,7 +115,7 @@ Describe the dataset and how we split it into training set vs testing set.
 
 Describe the following:
 \begin{itemize}
-  \item How market variables are extracted from the dataset. Please include the exact formula.
+  \item How market variables are extracted from the dataset. \textbf{Please include the exact formula}.
   \item Rational of why those market variables are chosen.
   \item Point to the exact python file for reference.
 \end{itemize}
@@ -124,12 +125,15 @@ Describe the following:
 Describe the following:
 \begin{itemize}
   \item How private variables are extracted from the dataset. Please include details on
-  dynamic programming (esp. formula), execution simulation, variable discretization and considerations.
+  \textbf{dynamic programming (esp. formula), execution simulation, variable discretization} and considerations.
   \item Point to the exact python file for reference.
 \end{itemize}
 
 \section{Model Training}
-To train the model, the loss function is first determined to be the
+For model training, we've experimented with quite a few model constructions, from which
+we settled at the following configurations.
+
+Firstly the loss function is determined to be the
 \href{https://github.com/tensorflow/tensorflow/blob/r1.13/tensorflow/python/keras/backend.py}{\textbf{sparse categorical crossentropy}}
 loss provided by \textit{Tensorflow Keras}. The loss function is one of the standard
 choices in multi-categorization models, measuring the categorical crossentropy. \\
@@ -174,6 +178,13 @@ Fortunately we have a default implementation provided by
 \href{https://github.com/tensorflow/tensorflow/blob/r1.13/tensorflow/python/ops/metrics_impl.py}{\textit{Tensorflow Keras}}. \\
 
 
+\noindent We calculate the percentage in terms of decision points instead of training episodes. That is,
+assume that we have $K$ training episodes in total with $D$ decision points each and
+out of the $K \times D$ predictions we have $P$ predictions hitting the optimal decision,
+the percentage calculated would be $\frac{P}{K \times D}$. On average, we are able to achieve
+$54\%$ in-sample accuracy and $53\%$ out-of-sample accuracy.
+
+
 \subsection{Total Strategy Execution Cost}
 \textbf{Total Strategy Execution Cost} is defined as the total cost if the client were to
 completely follow the model's suggested actions at each decition point. Assume that
@@ -201,11 +212,12 @@ However, reality is that the market is stochastic, therefore the strategy one ca
 achieve would be at most as good as the optimal strategy.\\
 
 
-\noindent Results comparing the model with the optimal strategy are shown in Figure \ref{optimal}.
+\noindent Out-of-sample results comparing the model with the optimal strategy are shown in Figure \ref{optimal}.
 Assuming the optimal cost is $c_{opt}$ and the model cost is $c_{m}$, then the y-axis
 is expressed as $$opt\% = \frac{c_{m} - c_{opt}}{c_{opt}}.$$
 Recall that the problem is for selling, therefore $c_{m} \le c_{opt}$ and hence $opt\% \le 0$.
-On average, the model is able to achieve $\bar{opt\%} = 0.54\%$ for out-of-sample data.
+On average, the model is able to achieve $\bar{opt\%} = -0.1179\%$ for out-of-sample data.
+The number shows that on average, we are only $0.1179\%$ worse than the optimal strategy.
 
 \begin{figure}[h]
 \centering
@@ -215,6 +227,30 @@ On average, the model is able to achieve $\bar{opt\%} = 0.54\%$ for out-of-sampl
 \end{figure}
 
 \subsubsection{Model VS Mid-spread S\&L}
+
+The mid-spread submit \& leave strategy is one that at the begining of the time
+horizon H, we submit a limit order at the mid-spread price of the order book.
+At the end of the time horizon H, all remaining inventory are submitted as market
+order and assume to be executed at market price.\\
+
+
+\noindent Out-of-sample results comparing the model to the Mid-spread submit \& leave strategy are shown
+in Figure \ref{midspread}. Similar to the optimal case, assuming the mid-spread strategy
+cost is $c_{mid}$, then the y-axis is $$mid\% = \frac{c_{m} - c_{mid}}{c_{mid}}.$$
+On average, the model is able to achieve $mid\% = 0.54\%$.\\
+
+
+\noindent Although this number seems small, it's actually quite significant, given that the
+mid-spread submit \& leave strategy is on average only $0.7\%$ worse than the optimal.
+Moreover, given our short time horizon H of 120 seconds and long decition interval
+of 30 seconds each, we are only given 4 decision points for each training episode.
+Therefore, if we were to follow the mid-spread price, it could be very hard to achieve the
+goal of selling all the V shares within the horizon. Indeed, from Figure \ref{midspread}
+we can observe two extreme points at which our model is significantly worse than
+the mid-spread strategy. After tracing back the execution in the episode,
+we realize that in those two periods if we were to follow the mid-spread strategy,
+we wouldn't be able to sell all the V shares within H.
+
 
 \begin{figure}[h]
 \centering
@@ -260,6 +296,14 @@ of the project. However, we would like to note them down here as remarks.
 \end{itemize}
 
 \section{Conclusion}
+In this project, inspired by \cite{reinforcement}, we develop a supervised deep learning model for the optimized trade
+execution problem. Sophisticated market simulation and dynamic programming algorithms
+are implemented for prepartion of the model input to make it computationally more
+efficient. Construction and training of the neural network is also fine-tuned with
+efficiency and accuracy in mind. With \textit{Tensorflow} and \textit{Tensorflow Keras},
+we are able to build and train the model with limited effort, and indeed the results of the
+model are shown to be encouraging. Last but not least, we conclude the project with
+a few important remarks and after-thoughts. It has been a fruitful journey.
 
 
 \begin{thebibliography}{9}
