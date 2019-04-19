@@ -4,6 +4,9 @@
 \usepackage{amsthm}
 \usepackage{amssymb}
 \usepackage{amsmath}
+\usepackage{graphicx}
+
+\graphicspath{ {./images/} }
 
 \geometry{a4paper,
  total={170mm,257mm},
@@ -38,7 +41,14 @@ where $f$ is an unknown function to be learned. \\
 \noindent To estimate the function $f$, we develop a supervised deep learning model as described below.
 The model is implemented with \textit{Tensorflow} and \textit{Tensorflow
 Keras} provided by Google Brain, using \textit{Python}.
-Implementation of the model can be found in the file \textit{Model.py}.
+Implementation of the model can be found in the file \textit{Model.py}.\\
+
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{model}
+\caption{The Supervised Deep Learning Model}
+\end{figure}
 
 \begin{itemize}
 \item \textbf{Input Layer} The input layer consists of simply the 6 parameters of the function $f$.
