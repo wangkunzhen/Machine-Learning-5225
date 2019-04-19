@@ -23,7 +23,7 @@
 \section{Introduction}
 Optimized Trade Execution is one of the best-studied problems in the field
 of quantitative finance. In this problem, the goal is to buy(sell) a given
-number, V, of a specific stock within the given time horizon, T, with the
+number, V, of a specific stock within the given time horizon, H, with the
 minimum total cost(maximum total gain). If there is remaining inventory
 approaching the end of the time horizon, the agent will be forced to place
 a market order. \\
@@ -32,10 +32,10 @@ a market order. \\
 \noindent Note the equivalence of both sides (the buy and sell side) of the
 problem, we will therefore solve the problem only for the sell side. That is,
 the goal of our model would be to maximize the total selling cost of the
-V shares of a stock given the time horizon T. Moreover, we also note that
+V shares of a stock given the time horizon H. Moreover, we also note that
 the problem is additive with respect to different stocks. That is, a problem
 to buy $V_1$ shares of Stock A and sell $V_2$ shares of Stock B within a given
-time horizon T has a solution equivalent to the addition of optimal solutions given by
+time horizon H has a solution equivalent to the addition of optimal solutions given by
 solving the problem for Stock A and Stock B individually.\\
 
 
@@ -153,18 +153,75 @@ adopted by Adam is listed below.
 \\
 
 
-% \noindent For evaluation metrics, the \href{https://github.com/tensorflow/tensorflow/blob/r1.13/tensorflow/python/ops/metrics_impl.py}{\textit{\textbf{accuracy}}}
-% metric provided by \textit{Tensorflow Keras} is chosen:
-% $$\textit{accuracy} = \frac{\textit{count}(\textit{prediction} == \textit{label})}{\textit{count}(\textit{predictions})}.$$
-% Ultimately it measures how often the prediction matches the label provided. \\
-
-
 \noindent The model is trained with the aforementioned configurations for 2000 iterations,
 at which point we note that the cost remains relatively stable and the accuracy stops
 improving. Therefore, we stop the training process at 2000 iterations.
 
 \section{Results} \label{results}
 
+We implement two cateogiries of metrics to evaluate the model, namely,
+\begin{enumerate}
+  \item \textbf{Accuracy}-based
+  \item \textbf{Total Strategy Execution Cost}-based
+\end{enumerate}
+In this section, we define each of the two types of metrics and present their results correspondingly.
+
+\subsection{Accuracy}
+This is referred to as the accuracy metric, as defined by
+$$\textit{accuracy} = \frac{\textit{count}(\textit{prediction} == \textit{label})}{\textit{count}(\textit{predictions})}.$$
+Ultimately it measures how often the prediction matches the label provided, for both in-sample and out-of-sample data.
+Fortunately we have a default implementation provided by
+\href{https://github.com/tensorflow/tensorflow/blob/r1.13/tensorflow/python/ops/metrics_impl.py}{\textit{Tensorflow Keras}}. \\
+
+
+\subsection{Total Strategy Execution Cost}
+\textbf{Total Strategy Execution Cost} is defined as the total cost if the client were to
+completely follow the model's suggested actions at each decition point. Assume that
+we are allowed to make decision every T time unit. That is, during the total time horizon
+of the problem definition, we are only allowed to make decisions at $t \in \{ kT: 0 \le k \le \frac{H}{T} \}$.
+Here for simplicity, we assume that $\frac{H}{T}$ is whole. Let $o_t$ represent the set
+of market variables at time $H - t$, $c_{im}(t, i, o_t)$ and $n_{im}(t, i, o_t)$ represents the immediate execution cost and
+immediate execution volume in time interval $[H-t, H-t+T)$ with remaining inventory $i$ and market variable $o_t$ at time $H - t$.
+Then the \textbf{Total Strategy Execution Cost} is defined recursively as
+$$c(V, H) = c_{im}(H, V, o_H) + c(V - n_{im}(H, V, o_H), H - T).$$
+
+\noindent Reusing the \textit{ExecutionEngine.py} class, we can easily calculate
+$c_{im}(t, i, o_t)$ and $n_{im}(t, i, o_t)$ given $t, i, o_t$, thus $c(V, H)$.\\
+
+
+\noindent There are two evaluation metrics based on the \textbf{Total Strategy Execution Cost}:
+percentage by which the model underperforms the optimal solution in terms of the cost and the
+percentage by which the model outperforms the mid-spread submit and leave strategy.
+Results for both metrics are presented below correspondingly.
+
+\subsubsection{Model VS Optimal}
+The optimal strategy is the strategy one can ever achive assuming all market information for the whole
+time horizon H is known at the beginning. That is, the market becomes deterministic.
+However, reality is that the market is stochastic, therefore the strategy one can
+achieve would be at most as good as the optimal strategy.\\
+
+
+\noindent Results comparing the model with the optimal strategy are shown in Figure \ref{optimal}.
+Assuming the optimal cost is $c_{opt}$ and the model cost is $c_{m}$, then the y-axis
+is expressed as $$opt\% = \frac{c_{m} - c_{opt}}{c_{opt}}.$$
+Recall that the problem is for selling, therefore $c_{m} \le c_{opt}$ and hence $opt\% \le 0$.
+On average, the model is able to achieve $\bar{opt\%} = 0.54\%$ for out-of-sample data.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{optimal}
+\caption{Percentage by which the model underperforms the optimal (\%)}
+\label{optimal}
+\end{figure}
+
+\subsubsection{Model VS Mid-spread S\&L}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{midspread}
+\caption{Percentage by which the model outperforms the mid-spread submit and leave (\%)}
+\label{midspread}
+\end{figure}
 
 \section{Remarks \& Future Work}
 Despite the satisfying performance of the model, there are still plenty of room
