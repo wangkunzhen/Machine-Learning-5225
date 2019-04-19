@@ -21,20 +21,27 @@
 \section{Literature Review}
 
 \section{Model}
-In this project, we developed the following supervised deep learning model to predict the
-optimal execution strategy. \noindent The model is implemented with \textit{Tensorflow} and \textit{Tensorflow
+In this project, we assume that the optimal execution strategy can be expressed as
+a pure function of the following 6 variables: $t$ the remaining time before the end of
+the time horizon, $i$ the remaining inventory to sell, the price level, price trend,
+limit order book volume mismatch as well as the bid-ask spread at the decision point.
+Following the convention in \cite{reinforcement}, we group the 6 input variables
+into two categories, i.e., the \textbf{private variables} consisting of $t$ and $i$
+that is specific to the Optimized Trade Execution problem, and the \textbf{market variables}
+consisting of the rest of the four. Output of the model is represented by \textit{\textbf{action}},
+the price at which to place a limit order.
+The model can be expressed mathematically as
+$$ \textit{action} = f(t, i, \textit{price level}, \textit{price trend}, \textit{vol mismatch}, \textit{bid-ask spread}), $$
+where $f$ is an unknown function to be learned. \\
+
+
+\noindent To estimate the function $f$, we develop a supervised deep learning model as described below.
+The model is implemented with \textit{Tensorflow} and \textit{Tensorflow
 Keras} provided by Google Brain, using \textit{Python}.
 Implementation of the model can be found in the file \textit{Model.py}.
 
 \begin{itemize}
-\item \textbf{Input Layer} The model input consists of two categories. Being
-natural to base the decision on market environment, we carefully choose the following
-4 input variables to reflect the market conditions, i.e.,
-price level and trend, volume mismatch and bid-ask spread. They are
-referred to as the \textbf{market variables}. In addition,
-the model is also fed with two factors that are specific to the problem itself which
-we called the \textbf{private variables}. These include the remaining time before the end of
-the time horizon, \textit{t}, and remaining inventory to be sold, \textit{i}.
+\item \textbf{Input Layer} The input layer consists of simply the 6 parameters of the function $f$.
 Detailed definitions, rationales and extractions of these variables are
 provided in Section \ref{market-variables} and \ref{private-variables}.
 
@@ -52,7 +59,9 @@ The \textit{sigmoid} activation is chosen for its ability to capture
 non-linear relationships. A \textit{Dropout} layer is chosen
 in the middle to denoise and speed up the descent. \\
 
-\item \textbf{Output Layer} 
+\item \textbf{Output Layer} The output layer represents the predicted action given
+the input. The output variable, \textit{\textbf{action}}, is discrete for computational
+efficiency. Moreover, having a discrete output is important to avoid overfitting.
 
 \end{itemize}
 
