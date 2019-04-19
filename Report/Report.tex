@@ -10,8 +10,8 @@
  left=20mm,
  top=20mm}
 
-\title{FE5225 Final Report}
-\author{Group Machinera}
+\title{Supervised Deep Learning for Optimized Trade Execution}
+\author{Hua Wanying, Long Zijie, Wang Kunzhen}
 
 \begin{document}
 \maketitle
@@ -20,15 +20,49 @@
 
 \section{Literature Review}
 
-
-
 \section{Model}
+In this project, we developed the following supervised deep learning model to predict the
+optimal execution strategy. \noindent The model is implemented with \textit{Tensorflow} and \textit{Tensorflow
+Keras} provided by Google Brain, using \textit{Python}.
+Implementation of the model can be found in the file \textit{Model.py}.
+
+\begin{itemize}
+\item \textbf{Input Layer} The model input consists of two categories. Being
+natural to base the decision on market environment, we carefully choose the following
+4 input variables to reflect the market conditions, i.e.,
+price level and trend, volume mismatch and bid-ask spread. They are
+referred to as the \textbf{market variables}. In addition,
+the model is also fed with two factors that are specific to the problem itself which
+we called the \textbf{private variables}. These include the remaining time before the end of
+the time horizon, \textit{t}, and remaining inventory to be sold, \textit{i}.
+Detailed definitions, rationales and extractions of these variables are
+provided in Section \ref{market-variables} and \ref{private-variables}.
+
+\item \textbf{Hidden Layers} The model is composed of 5 fully-connected hidden layers with
+256 neurons each. Activation functions for each layer is, correspondingly,
+\textit{leakyReLu},
+\textit{sigmoid}, \textit{dropout} with a rate of 0.5,
+\textit{leakyReLu}, \textit{sigmoid}. These activations are
+chosen after taking into consideration the nature of the
+problems. For example, noting the sparse activation characteristic of
+the \textit{leakyReLu} activation and that the outputs are discrete, we chose \textit{leakyReLu}
+to denoise the training process. Another advantage of the \textit{leakyReLu}
+is its computational efficiency and ability to avoid dead neurons.
+The \textit{sigmoid} activation is chosen for its ability to capture
+non-linear relationships. A \textit{Dropout} layer is chosen
+in the middle to denoise and speed up the descent. \\
+
+\item \textbf{Output Layer} 
+
+\end{itemize}
+
+
 \section{Model Training}
 \subsection{Data Description}
 
-\subsection{Market Variables}
+\subsection{Market Variables} \label{market-variables}
 
-\subsection{Private Variables}
+\subsection{Private Variables} \label{private-variables}
 
 \section{Results}
 
@@ -36,5 +70,11 @@
 
 \section{Conclusion}
 
+\begin{thebibliography}{9}
+\bibitem{reinforcement}
+Yuriy Nevmyvaka, Yi Feng, Michael Kearns.
+\textit{Reinforcement Learning for Optimized Trade Execution}.
+Proceedings of the 23rd International Conference on Machine Learning, Pittsburgh, PA, 2006.
+\end{thebibliography}
 
 \end{document}
