@@ -48,8 +48,6 @@ class ModelEvaluator:
                     remaining_steps = total_steps - (t - start) / time_step
                     model_input = ModelUtil.model_input(market_variables, remaining_inventory, remaining_steps)
                     predictions = model.predict(np.array([model_input]))
-                    idx = np.argmax(predictions)
-                    possible_actions_list = list(possible_actions)
                     action = list(possible_actions)[np.argmax(predictions)]
                     msg_book_step = np.asarray([m for m in msg_book_episode if t < m[0] <= t + time_step])
                     order_book_step = np.asarray([order_book_episode[i] for i in range(0, msg_book_episode.shape[0]) if
