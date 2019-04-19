@@ -71,19 +71,42 @@ in the middle to denoise and speed up the descent. \\
 
 \item \textbf{Output Layer} The output layer represents the predicted action given
 the input. The output variable, \textit{\textbf{action}}, is discrete for computational
-efficiency. Moreover, having a discrete output is important to avoid overfitting.
+efficiency. Moreover, having a discretized output is important to avoid overfitting.
+Refer to Section \ref{private-variables} for details on how \textit{\textbf{action}}
+is discretized.
 
 \end{itemize}
 
 
-\section{Model Training}
+\section{Data Preparation}
+This section describes in depth the dataset our research bases on and
+how we extract the six aforementioned model inputs from the dataset.
+
 \subsection{Data Description}
+
+Describe the dataset and how we split it into training set vs testing set.
 
 \subsection{Market Variables} \label{market-variables}
 
+Describe the following:
+\begin{itemize}
+  \item How market variables are extracted from the dataset. Please include the exact formula.
+  \item Rational of why those market variables are chosen.
+\end{itemize}
+
 \subsection{Private Variables} \label{private-variables}
 
+Describe the following:
+\begin{itemize}
+  \item How private variables are extracted from the dataset. Please include details on
+  dynamic programming (esp. formula), execution simulation, variable discretization and considerations.
+\end{itemize}
+
+\section{Model Training}
+
+
 \section{Results}
+
 
 \section{Remarks}
 
