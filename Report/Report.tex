@@ -131,9 +131,10 @@ Describe the following:
 
 \section{Model Training}
 For model training, we've experimented with quite a few model constructions, from which
-we settled at the following configurations.
+we settled at the following configurations.\\
 
-Firstly the loss function is determined to be the
+
+\noindent Firstly the loss function is determined to be the
 \href{https://github.com/tensorflow/tensorflow/blob/r1.13/tensorflow/python/keras/backend.py}{\textbf{sparse categorical crossentropy}}
 loss provided by \textit{Tensorflow Keras}. The loss function is one of the standard
 choices in multi-categorization models, measuring the categorical crossentropy. \\
@@ -185,7 +186,7 @@ the percentage calculated would be $\frac{P}{K \times D}$. On average, we are ab
 $54\%$ in-sample accuracy and $53\%$ out-of-sample accuracy.
 
 
-\subsection{Total Strategy Execution Cost}
+\subsection{Total Strategy Execution Cost} \label{tsec}
 \textbf{Total Strategy Execution Cost} is defined as the total cost if the client were to
 completely follow the model's suggested actions at each decition point. Assume that
 we are allowed to make decision every T time unit. That is, during the total time horizon
@@ -272,10 +273,10 @@ of the project. However, we would like to note them down here as remarks.
   some of the predictions that could have done almost as good as the optimal solution
   in terms of total strategy execution cost, though having completely different decisions
   at each decision point. Therefore, a readily available alternative loss function
-  would be the \textbf{total strategy execution cost} as defined in Section \ref{results}.\\
+  would be the \textbf{total strategy execution cost} as defined in Section \ref{tsec}.\\
 
 
-  We have implemented the loss function as per described in Section \ref{results}, but have yet
+  We have implemented the loss function as per described in Section \ref{tsec}, but have yet
   to integrate it to the training process because the implementation requires
   extra inputs than those provided in the function signature required by \textit{Tensorflow Keras}.
   To actually integrate the loss function, further understanding of the \textit{Tensorflow Keras}
