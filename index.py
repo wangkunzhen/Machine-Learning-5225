@@ -9,42 +9,47 @@ from Model import Model
 from ModelEvaluator import ModelEvaluator
 
 # arguments
-if not len(sys.argv) <= 1:
-	print("Please specify a folder containing the data. The folder should have two subfolders named Train and Test correspondingly, each containing message book and order book files.")
-	sys.exit(1)
+if not len(sys.argv) >= 2:
+    print("Missing Parameter <Folder>. Please specify the data folder. Expected folder structure:")
+    print("- <Folder>")
+    print("    - Train")
+    print("         - Msg book and order book files for training")
+    print("    - Test")
+    print("         - Msg book and order book files for testing")
+    sys.exit(1)
 
 data_folder = sys.argv[1] #
 
 volume = 1000
-if len(sys.argv) >= 2:
+if len(sys.argv) >= 3:
 	volume = int(sys.argv[2]) # 1000
 
 volume_step = 50
-if len(sys.argv) >= 3:
+if len(sys.argv) >= 4:
 	volume_step = int(sys.argv[3]) # 50
 
 time_horizon = 120
-if len(sys.argv) >= 4:
+if len(sys.argv) >= 5:
 	time_horizon = int(sys.argv[4]) # 120
 
 time_step = 30
-if len(sys.argv) >= 5:
+if len(sys.argv) >= 6:
 	time_step = int(sys.argv[5]) # 30
 
 max_action = 3000
-if len(sys.argv) >= 6:
+if len(sys.argv) >= 7:
 	max_action = int(sys.argv[6]) # 3000
 
 min_action = -3000
-if len(sys.argv) >= 7:
+if len(sys.argv) >= 8:
 	min_action = int(sys.argv[7]) # -3000
 
 action_step = 50
-if len(sys.argv) >= 8:
+if len(sys.argv) >= 9:
 	action_step = int(sys.argv[8]) # 50
 
 moving_window = 50
-if len(sys.argv) >= 9:
+if len(sys.argv) >= 10:
 	moving_window = int(sys.argv[9]) # 
 
 output_folder = join(data_folder, "output")
