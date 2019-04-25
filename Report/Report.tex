@@ -156,7 +156,7 @@ In this algorithm, we \textbf{iterate backwards in time}, solving first the stat
 \end{figure}
 
 \noindent At $t = T$, the cost is knowable for any $action\in \mathscr{A}$, which is the optimal solution at time $T$.
-$$c_T(i,\forall a\in\mathscr{A}) = market cost_{i,T}$$
+$$c_T(i,\forall a \in \mathscr{A}) = market cost_{i,T}$$
 At $t = T-1$ to $0$, we go through all possible action and inventory with knowing the inventory and maximum revenue at $t-1$,
 $$c_{t-1}^{optimal}(y_{t-1},p_{t-1}) = Max\{c_{t}^{optimal}(y_t,p_t) + c_{t-1}(i,a) \quad for \quad a\in \mathscr{A}, i \in \mathscr{I}\}$$
 where $y_t$ and $p_t$ is the remain inventory and action corresponding to the optimal strategy at time $t$.
