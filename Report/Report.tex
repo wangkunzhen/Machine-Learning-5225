@@ -6,13 +6,15 @@
 \usepackage{amsmath}
 \usepackage{graphicx}
 \usepackage{hyperref}
+\usepackage{float}
+\usepackage{mathrsfs}
 
+\renewcommand{\baselinestretch}{1.5}
 \graphicspath{ {./images/} }
 
 \geometry{a4paper,
- total={170mm,257mm},
- left=20mm,
- top=20mm}
+ left=25mm,
+ top=25mm}
 
 \title{Supervised Deep Learning for Optimized Trade Execution}
 \author{Hua Wanying, Long Zijie, Wang Kunzhen}
@@ -44,9 +46,9 @@ approach to addressing the problem, referencing the reinforcement learning model
 \cite{reinforcement}. The model we build is based on supervised deep learning.
 Implementation details, results as well as relevant justifications for the choices
 and assumptions made for building the model are also provided in this report.
-
 \section{Literature Review}
 
+Our study originates from \cite{reinforcement} - the first large-scale empirical application of reinforcement learning to Optimized Trade Execution. It applies \textbf{state-based strategies} that examine salient features of the current order books in order to decide what to do in the next period, then fuses \textbf{dynamic programming} and exploits the approximate independence between private and market variables to find the best possible strategy. These concepts are well understood and implemented similarly in our algorithm. We also noted that its model performance is evaluated by comparing with a submit \& leave strategy at mid-spread. Such metric can be misleading in adverse market conditions, where mid-spread order will not be executed. Additional metrics is used to evaluate our model performance.
 \section{Model}
 In this project, we assume that the optimal execution strategy can be expressed as
 a pure function of the following 6 variables: $t$ the remaining time before the end of
@@ -65,12 +67,10 @@ where $f$ is an unknown function to be learned. \\
 \noindent To estimate the function $f$, we develop a supervised deep learning model (thereafter referred to as \textit{the model}) as described below.
 The model is implemented with \textit{Tensorflow} and \textit{Tensorflow
 Keras} provided by Google Brain, using \textit{Python}.
-Implementation of the model can be found in the file \textit{Model.py}.\\
-
-
+Implementation of the model can be found in the file \textit{Model.py}.
 \begin{figure}[h]
 \centering
-\includegraphics[width=\textwidth]{model}
+\includegraphics[width=0.7\textwidth]{model}
 \caption{The Supervised Deep Learning Model}
 \end{figure}
 
@@ -91,7 +91,7 @@ to denoise the training process. Another advantage of the \textit{leakyReLu}
 is its computational efficiency and ability to avoid dead neurons.
 The \textit{sigmoid} activation is chosen for its ability to capture
 non-linear relationships. A \textit{Dropout} layer is chosen
-in the middle to denoise and speed up the descent. \\
+in the middle to denoise and speed up the descent.
 
 \item \textbf{Output Layer} The output layer represents the predicted action given
 the input. The output variable, \textit{\textbf{action}}, is discrete for computational
@@ -103,31 +103,67 @@ is discretized.
 
 
 \section{Data Preparation}
-Describe and justify the value of $V, H, T, I$ chosen for the research. Please
-refrain from saying that it's what the paper has chosen. We should have our own
-rationale.
+We choose the number of stock $V$ to be 1000 to ensure sufficient liquidity for market order given the order book data.
+Time Horizon $H$ is set to be 120 seconds. Number of distinct points at which the policy is allowed to observe, $T$, is set to be 4, i.e. we can submit a revised limit order every $H/T$=30 seconds. Number of inventories units our policy can distinguish, $I$, is set to be 4, i.e. our order size is a multiple of $V/I$=250. These variables are chosen to simulate realistic task to sell stocks, to allow sufficient time for price fluctuations and also strike a balance for faster implementation.
 
 \subsection{Data Description}
-
-Describe the dataset and how we split it into training set vs testing set.
+We use 3 month of high-frequency order book and message book data with stock Activision (ticker: ATVI). 2-month of data is used for model training and remaining 1 month for testing.
+With order book data, we will be able to construct a 5-level sell order book and buy order book.
+Message book data describes all historical events with time stamp, e.g. submission of a new limit order, deletion of a limit order and execution of a visible limit order. Please refer \href{https://lobsterdata.com/info/DataStructure.php}{\textbf{here}}
+for details on data structure.
 
 \subsection{Market Variables} \label{market-variables}
 
-Describe the following:
+Firstly, we define some variables:
 \begin{itemize}
-  \item How market variables are extracted from the dataset. \textbf{Please include the exact formula}.
-  \item Rational of why those market variables are chosen.
-  \item Point to the exact python file for reference.
+  \item bid and ask price at the beginning of each interval : $bp_{beginning}$, $ap_{beginning}$
+  \item bid and ask price at the decision point : $bp_{decision}$, $ap_{decision}$
+  \item window length of moving average : $w$
+  \item bid and ask order volume at decision point : $bv_{decision}$, $av_{decision}$
+\end{itemize}
+We calculate the market variables as following formulas:
+\begin{itemize}
+\item \textbf{Spread} : $ap_{beginning} - bp_{beginning}$
+\item \textbf{Price level} : $\frac{\sum_{i=1}^{w}ap_i - ap_{decision}}{ap_{decision}}$
+\item \textbf{Mismatch} : $bv_{decision} - av_{decision}$
+\item \textbf{Trend} : $ap_{decision} - Price level$
 \end{itemize}
 
+Spread is the reflection of market liquidation, and order mismatch can measure the demand and supply in the market. These two market variables may tell us is the market a buyer's market or a seller's market. Meanwhile, if the price is at a high level, we prefer to sell orders as much as possible, vice versa. Although the price level of different period can be similar, we also need to consider the price momentum. For a seller, the upward trend is an opportunity.
 \subsection{Private Variables} \label{private-variables}
 
-Describe the following:
-\begin{itemize}
-  \item How private variables are extracted from the dataset. Please include details on
-  \textbf{dynamic programming (esp. formula), execution simulation, variable discretization} and considerations.
-  \item Point to the exact python file for reference.
-\end{itemize}
+\subsubsection{Trade Simulation}
+We consider below different scenarios to simulate our order:
+\begin{enumerate}
+ \item $t = T$ (e.g. end of 120s) $\rightarrow$ market order $\rightarrow$ continue to sell at next available buy order until $i=0$
+ \item $t = 0$ to $T-1$ $\rightarrow$ limit order
+\end{enumerate}
+ \begin{itemize}
+ \item If order price $\leqslant$ best bid price $\rightarrow$ immediate execution $\rightarrow$ execution order of the same ID will not be executed again
+ \item If best bid price $\leqslant$ order price $\leqslant$ best ask price $\rightarrow$ our limit sell order becomes the best ask price
+ \item If order price $\geqslant$ best ask price $\rightarrow$ our order will not be executed even there is a buy order with price higher than our sell order
+ \end{itemize}
+\textbf{Note}: We have to always monitor all sell orders with higher priority to sell than ours, i.e. maintain a accurate sell order book. This includes tracking of sell order submission \& cancellation, sell book order execution.
+\\Please refer \href{https://github.com/wangkunzhen/Machine-Learning-5225/blob/master/ExecutionEngine.py}{\textbf{here}} for trade simulation code.
+
+\subsubsection{Dynamic Programming}
+
+In this algorithm, we \textbf{iterate backwards in time}, solving first the state for $t = T$ and iterate the same procedure back to $t = 0$. Following graph visualize the process of dynamic programming.
+
+\begin{figure}[H]
+\center{\includegraphics[width=0.7\textwidth]{visualization}}
+\caption{Optimal path problem visualization}
+\end{figure}
+
+\noindent At $t = T$, the cost is knowable for any $action\in \mathscr{A}$, which is the optimal solution at time $T$.
+$$c_T(i,\forall a\in\mathscr{A}) = market cost_{i,T}$$
+At $t = T-1$ to $0$, we go through all possible action and inventory with knowing the inventory and maximum revenue at $t-1$,
+$$c_{t-1}^{optimal}(y_{t-1},p_{t-1}) = Max\{c_{t}^{optimal}(y_t,p_t) + c_{t-1}(i,a) \quad for \quad a\in \mathscr{A}, i \in \mathscr{I}\}$$
+where $y_t$ and $p_t$ is the remain inventory and action corresponding to the optimal strategy at time $t$.
+\\Please refer \href{https://github.com/wangkunzhen/Machine-Learning-5225/blob/master/OptimizationEngine.py}{\textbf{here}} for dynamic programming code.
+
+
+
 
 \section{Model Training}
 For model training, we've experimented with quite a few model constructions, from which
@@ -155,7 +191,6 @@ adopted by Adam is listed below.
     \theta_t &\leftarrow \theta_{t-1} - \alpha \cdot \frac{\hat{m_t}}{\sqrt{\hat{v_t}} + \epsilon} \text{(Update parameters)}
   \end{split}
 \end{equation*}
-\\
 
 
 \noindent The model is trained with the aforementioned configurations for 2000 iterations,
@@ -222,7 +257,7 @@ The number shows that on average, we are only $0.1179\%$ worse than the optimal 
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=\textwidth]{optimal}
+\includegraphics[width=0.7\textwidth]{optimal}
 \caption{Percentage by which the model underperforms the optimal (\%)}
 \label{optimal}
 \end{figure}
@@ -255,7 +290,7 @@ we wouldn't be able to sell all the V shares within H.
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=\textwidth]{midspread}
+\includegraphics[width=0.7\textwidth]{midspread}
 \caption{Percentage by which the model outperforms the mid-spread submit and leave (\%)}
 \label{midspread}
 \end{figure}
@@ -306,7 +341,7 @@ we are able to build and train the model with limited effort, and indeed the res
 model are shown to be encouraging. Last but not least, we conclude the project with
 a few important remarks and after-thoughts. It has been a fruitful journey.
 
-
+\newpage
 \begin{thebibliography}{9}
 \bibitem{reinforcement}
 Yuriy Nevmyvaka, Yi Feng, Michael Kearns.
