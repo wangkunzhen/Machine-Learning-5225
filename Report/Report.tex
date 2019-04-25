@@ -8,6 +8,7 @@
 \usepackage{hyperref}
 \usepackage{float}
 \usepackage{mathrsfs}
+\usepackage{subfig}
 
 \renewcommand{\baselinestretch}{1.5}
 \graphicspath{ {./images/} }
@@ -129,7 +130,7 @@ We calculate the market variables as following formulas:
 \item \textbf{Trend} : $ap_{decision} - Price level$
 \end{itemize}
 
-Spread is the reflection of market liquidation, and order mismatch can measure the demand and supply in the market. These two market variables may tell us is the market a buyer's market or a seller's market. Meanwhile, if the price is at a high level, we prefer to sell orders as much as possible, vice versa. Although the price level of different period can be similar, we also need to consider the price momentum. For a seller, the upward trend is an opportunity.
+\noindent Spread is the reflection of market liquidation, and order mismatch can measure the demand and supply in the market. These two market variables may tell us is the market a buyer's market or a seller's market. Meanwhile, if the price is at a high level, we prefer to sell orders as much as possible, vice versa. Although the price level of different period can be similar, we also need to consider the price momentum. For a seller, the upward trend is an opportunity.
 \subsection{Private Variables} \label{private-variables}
 
 \subsubsection{Trade Simulation}
@@ -151,7 +152,7 @@ We consider below different scenarios to simulate our order:
 In this algorithm, we \textbf{iterate backwards in time}, solving first the state for $t = T$ and iterate the same procedure back to $t = 0$. Following graph visualize the process of dynamic programming.
 
 \begin{figure}[H]
-\center{\includegraphics[width=0.7\textwidth]{visualization}}
+\center{\includegraphics[width=0.5\textwidth]{visualization}}
 \caption{Optimal path problem visualization}
 \end{figure}
 
@@ -204,11 +205,10 @@ We implement two cateogiries of metrics to evaluate the model, namely,
   \item \textbf{Accuracy}-based
   \item \textbf{Total Strategy Execution Cost}-based
 \end{enumerate}
-In this section, we define each of the two types of metrics and present their results correspondingly.
 
 \subsection{Accuracy}
 This is referred to as the accuracy metric, as defined by
-$$\textit{accuracy} = \frac{\textit{count}(\textit{prediction} == \textit{label})}{\textit{count}(\textit{predictions})}.$$
+$\textit{accuracy} = \frac{\textit{count}(\textit{prediction} == \textit{label})}{\textit{count}(\textit{predictions})}.$
 Ultimately it measures how often the prediction matches the label provided, for both in-sample and out-of-sample data.
 Fortunately we have a default implementation provided by
 \href{https://github.com/tensorflow/tensorflow/blob/r1.13/tensorflow/python/ops/metrics_impl.py}{\textit{Tensorflow Keras}}. \\
@@ -255,13 +255,6 @@ Recall that the problem is for selling, therefore $c_{m} \le c_{opt}$ and hence 
 On average, the model is able to achieve $\bar{opt\%} = -0.1179\%$ for out-of-sample data.
 The number shows that on average, we are only $0.1179\%$ worse than the optimal strategy.
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=0.7\textwidth]{optimal}
-\caption{Percentage by which the model underperforms the optimal (\%)}
-\label{optimal}
-\end{figure}
-
 \subsubsection{Model VS Mid-spread S\&L}
 
 The mid-spread submit \& leave strategy is one that at the begining of the time
@@ -287,12 +280,11 @@ the mid-spread strategy. After tracing back the execution in the episode,
 we realize that in those two periods if we were to follow the mid-spread strategy,
 we wouldn't be able to sell all the V shares within H.
 
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=0.7\textwidth]{midspread}
-\caption{Percentage by which the model outperforms the mid-spread submit and leave (\%)}
-\label{midspread}
+\begin{figure}[!htp]
+  \centering
+  \subfloat[Percentage by which the model underperforms the optimal (\%)]{\label{optimal}\includegraphics[width=0.49\linewidth]{optimal}}\hfill
+  \subfloat[Percentage by which the model outperforms the mid-spread submit and leave (\%)]{\label{midspread}\includegraphics[width=0.49\linewidth]{midspread}}
+  \caption{Model Evaluation Result}
 \end{figure}
 
 \section{Remarks \& Future Work}
@@ -309,13 +301,6 @@ of the project. However, we would like to note them down here as remarks.
   in terms of total strategy execution cost, though having completely different decisions
   at each decision point. Therefore, a readily available alternative loss function
   would be the \textbf{total strategy execution cost} as defined in Section \ref{tsec}.\\
-
-
-  We have implemented the loss function as per described in Section \ref{tsec}, but have yet
-  to integrate it to the training process because the implementation requires
-  extra inputs than those provided in the function signature required by \textit{Tensorflow Keras}.
-  To actually integrate the loss function, further understanding of the \textit{Tensorflow Keras}
-  framework is required.
 
   \item \textbf{Model Inputs} Current choices of the model inputs, especially the
   market variables, are somewhat arbitrary. We believe that further analysis is necessary
