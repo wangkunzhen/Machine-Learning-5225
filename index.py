@@ -9,15 +9,43 @@ from Model import Model
 from ModelEvaluator import ModelEvaluator
 
 # arguments
-data_folder = sys.argv[1]
-volume = int(sys.argv[2])
-volume_step = int(sys.argv[3])
-time_horizon = int(sys.argv[4])
-time_step = int(sys.argv[5])
-max_action = int(sys.argv[6])
-min_action = int(sys.argv[7])
-action_step = int(sys.argv[8])
-moving_window = int(sys.argv[9])
+if not len(sys.argv) <= 1:
+	print("Please specify a folder containing the data. The folder should have two subfolders named Train and Test correspondingly, each containing message book and order book files.")
+	sys.exit(1)
+
+data_folder = sys.argv[1] #
+
+volume = 1000
+if len(sys.argv) >= 2:
+	volume = int(sys.argv[2]) # 1000
+
+volume_step = 50
+if len(sys.argv) >= 3:
+	volume_step = int(sys.argv[3]) # 50
+
+time_horizon = 120
+if len(sys.argv) >= 4:
+	time_horizon = int(sys.argv[4]) # 120
+
+time_step = 30
+if len(sys.argv) >= 5:
+	time_step = int(sys.argv[5]) # 30
+
+max_action = 3000
+if len(sys.argv) >= 6:
+	max_action = int(sys.argv[6]) # 3000
+
+min_action = -3000
+if len(sys.argv) >= 7:
+	min_action = int(sys.argv[7]) # -3000
+
+action_step = 50
+if len(sys.argv) >= 8:
+	action_step = int(sys.argv[8]) # 50
+
+moving_window = 50
+if len(sys.argv) >= 9:
+	moving_window = int(sys.argv[9]) # 
 
 output_folder = join(data_folder, "output")
 market_folder = join(output_folder, "Market")
@@ -46,7 +74,7 @@ trade_start = int(9.5*60*60)
 trade_end = int(16*60*60)
 window_size = 1
 
-"""
+
 # compute market variable
 Market(train_data_folder, train_market_output, time_horizon, time_step, moving_window, trade_start, trade_end).load()
 Market(test_data_folder, test_market_output, time_horizon, time_step, moving_window, trade_start, trade_end).load()
@@ -59,7 +87,7 @@ train_opt.optimize_trade_execution()
 private_opt = TradeOptimizer(test_data_folder, train_private_output, volume, volume_step, time_horizon, time_step,
                              max_action, min_action, -action_step, trade_start, trade_end)
 private_opt.optimize_trade_execution()
-"""
+
 
 # fit model
 model_path = join(model_output, "model.dat")
