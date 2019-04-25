@@ -67,7 +67,7 @@ where $f$ is an unknown function to be learned. \\
 \noindent To estimate the function $f$, we develop a supervised deep learning model (thereafter referred to as \textit{the model}) as described below.
 The model is implemented with \textit{Tensorflow} and \textit{Tensorflow
 Keras} provided by Google Brain, using \textit{Python}.
-Implementation of the model can be found in the file \textit{Model.py}.
+Implementation of the model can be found in the file \href{https://github.com/wangkunzhen/Machine-Learning-5225/blob/master/Model.py}{\textbf{Model.py}}.
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.7\textwidth]{model}
@@ -160,7 +160,7 @@ $$c_T(i,\forall a \in \mathscr{A}) = market cost_{i,T}$$
 At $t = T-1$ to $0$, we go through all possible action and inventory with knowing the inventory and maximum revenue at $t-1$,
 $$c_{t-1}^{optimal}(y_{t-1},p_{t-1}) = Max\{c_{t}^{optimal}(y_t,p_t) + c_{t-1}(i,a) \quad for \quad a\in \mathscr{A}, i \in \mathscr{I}\}$$
 where $y_t$ and $p_t$ is the remain inventory and action corresponding to the optimal strategy at time $t$.
-\\Please refer \href{https://github.com/wangkunzhen/Machine-Learning-5225/blob/master/OptimizationEngine.py}{\textbf{here}} for dynamic programming code.
+Please refer \href{https://github.com/wangkunzhen/Machine-Learning-5225/blob/master/OptimizationEngine.py}{\textbf{here}} for dynamic programming code.
 
 
 
@@ -232,7 +232,7 @@ immediate execution volume in time interval $[H-t, H-t+T)$ with remaining invent
 Then the \textbf{Total Strategy Execution Cost} is defined recursively as
 $$c(V, H) = c_{im}(H, V, o_H) + c(V - n_{im}(H, V, o_H), H - T).$$
 
-\noindent Reusing the \textit{ExecutionEngine.py} class, we can easily calculate
+\noindent Reusing the \href{https://github.com/wangkunzhen/Machine-Learning-5225/blob/master/Model.py}{\textit{ExecutionEngine.py}} class, we can easily calculate
 $c_{im}(t, i, o_t)$ and $n_{im}(t, i, o_t)$ given $t, i, o_t$, thus $c(V, H)$.\\
 
 
@@ -341,7 +341,6 @@ we are able to build and train the model with limited effort, and indeed the res
 model are shown to be encouraging. Last but not least, we conclude the project with
 a few important remarks and after-thoughts. It has been a fruitful journey.
 
-\newpage
 \begin{thebibliography}{9}
 \bibitem{reinforcement}
 Yuriy Nevmyvaka, Yi Feng, Michael Kearns.
