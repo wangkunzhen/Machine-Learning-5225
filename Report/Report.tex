@@ -15,7 +15,9 @@
 
 \geometry{a4paper,
  left=25mm,
- top=25mm}
+ right=25mm,
+ top=25mm,
+ bottom=25mm}
 
 \title{Supervised Deep Learning for Optimized Trade Execution}
 \author{Hua Wanying, Long Zijie, Wang Kunzhen}
@@ -29,17 +31,10 @@ of quantitative finance. In this problem, the goal is to buy(sell) a given
 number, V, of a specific stock within the given time horizon, H, with the
 minimum total cost(maximum total gain). If there is remaining inventory
 approaching the end of the time horizon, the agent will be forced to place
-a market order. \\
-
-
-\noindent Note the equivalence of both sides (the buy and sell side) of the
+a market order. Noting the equivalence of both sides (the buy and sell side) of the
 problem, we will therefore solve the problem only for the sell side. That is,
 the goal of our model would be to maximize the total selling cost of the
-V shares of a stock given the time horizon H. Moreover, we also note that
-the problem is additive with respect to different stocks. That is, a problem
-to buy $V_1$ shares of Stock A and sell $V_2$ shares of Stock B within a given
-time horizon H has a solution equivalent to the addition of optimal solutions given by
-solving the problem for Stock A and Stock B individually.\\
+V shares of a stock given the time horizon H.\\
 
 
 \noindent Our contribution to the study of the problem is to provide an alternative
@@ -47,9 +42,11 @@ approach to addressing the problem, referencing the reinforcement learning model
 \cite{reinforcement}. The model we build is based on supervised deep learning.
 Implementation details, results as well as relevant justifications for the choices
 and assumptions made for building the model are also provided in this report.
+
 \section{Literature Review}
 
 Our study originates from \cite{reinforcement} - the first large-scale empirical application of reinforcement learning to Optimized Trade Execution. It applies \textbf{state-based strategies} that examine salient features of the current order books in order to decide what to do in the next period, then fuses \textbf{dynamic programming} and exploits the approximate independence between private and market variables to find the best possible strategy. These concepts are well understood and implemented similarly in our algorithm. We also noted that its model performance is evaluated by comparing with a submit \& leave strategy at mid-spread. Such metric can be misleading in adverse market conditions, where mid-spread order will not be executed. Additional metrics is used to evaluate our model performance.
+
 \section{Model}
 In this project, we assume that the optimal execution strategy can be expressed as
 a pure function of the following 6 variables: $t$ the remaining time before the end of
@@ -97,8 +94,6 @@ in the middle to denoise and speed up the descent.
 \item \textbf{Output Layer} The output layer represents the predicted action given
 the input. The output variable, \textit{\textbf{action}}, is discrete for computational
 efficiency. Moreover, having a discretized output is important to avoid overfitting.
-Refer to Section \ref{private-variables} for details on how \textit{\textbf{action}}
-is discretized.
 
 \end{itemize}
 
@@ -200,11 +195,8 @@ improving. Therefore, we stop the training process at 2000 iterations.
 
 \section{Results} \label{results}
 
-We implement two cateogiries of metrics to evaluate the model, namely,
-\begin{enumerate}
-  \item \textbf{Accuracy}-based
-  \item \textbf{Total Strategy Execution Cost}-based
-\end{enumerate}
+We implement two cateogiries of metrics to evaluate the model, namely, \textbf{accuracy}-based
+and \textbf{total strategy execution cost}-based.
 
 \subsection{Accuracy}
 This is referred to as the accuracy metric, as defined by
@@ -341,16 +333,5 @@ ICLR, 2015.
 Robert Kissel, Morton Glantz.
 \textit{Optimal Trading Strategies: Quantitative Approaches for Managing Market Impact and Trading Risk}.
 AMACOM, 2003.
-
-\bibitem{literature-1}
-Almgren, R., Chriss, N..
-\textit{Optimal Execution of Portfolio Transactions}.
-Journal of Risk, 2002.
-
-\bibitem{literature-2}
-Bertsimas, D., A, Lo, A..
-\textit{Optimal Control of Execution Costs}.
-Journal of Financial Markets 1, 1-50, 1998.
-\end{thebibliography}
 
 \end{document}
